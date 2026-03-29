@@ -20,18 +20,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Timers;
-using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -329,41 +318,41 @@ namespace PRoConEvents
                 }
             }
 
-            public int MaxPlayers = 64; // will be corrected later
-            public double CheckTeamStackingAfterFirstMinutes = 10;
-            public int MaxUnstackingSwapsPerRound = 4;
-            public double DelaySecondsBetweenSwapGroups = SWAP_TIMEOUT;
+            public Int32 MaxPlayers = 64; // will be corrected later
+            public Double CheckTeamStackingAfterFirstMinutes = 10;
+            public Int32 MaxUnstackingSwapsPerRound = 4;
+            public Double DelaySecondsBetweenSwapGroups = SWAP_TIMEOUT;
             public DefineStrong DetermineStrongPlayersBy = DefineStrong.RoundScore;
-            public int DefinitionOfHighPopulationForPlayers = 48;
-            public int DefinitionOfLowPopulationForPlayers = 16;
-            public int DefinitionOfEarlyPhaseFromStart = 50;
-            public int DefinitionOfLatePhaseFromEnd = 50;
-            public int DisperseEvenlyByRank = 145;
-            public bool EnableDisperseEvenlyList = false;
-            public double PercentOfTopOfTeamIsStrong = 50;
-            public int NumberOfSwapsPerGroup = 2;
-            public bool EnableScrambler = false;
-            public bool EnableMetroAdjustments = false;
-            public int MetroAdjustedDefinitionOfLatePhase = 50;
-            public bool OnlyMoveWeakPlayers = true;
-            public bool EnableStrictDispersal = true;
-            public bool EnableTicketLossRatio = false;
-            public int TicketLossSampleCount = 180;
-            public int MaxUnstackingTicketDifference = 0;
-            public int DisperseEvenlyByClanPlayers = 0;
-            public bool EnableUnstackingByPlayerStats = false;
-            public bool EnableLowPopulationAdjustments = false;
-            public double RoutPercentage = 0;
+            public Int32 DefinitionOfHighPopulationForPlayers = 48;
+            public Int32 DefinitionOfLowPopulationForPlayers = 16;
+            public Int32 DefinitionOfEarlyPhaseFromStart = 50;
+            public Int32 DefinitionOfLatePhaseFromEnd = 50;
+            public Int32 DisperseEvenlyByRank = 145;
+            public Boolean EnableDisperseEvenlyList = false;
+            public Double PercentOfTopOfTeamIsStrong = 50;
+            public Int32 NumberOfSwapsPerGroup = 2;
+            public Boolean EnableScrambler = false;
+            public Boolean EnableMetroAdjustments = false;
+            public Int32 MetroAdjustedDefinitionOfLatePhase = 50;
+            public Boolean OnlyMoveWeakPlayers = true;
+            public Boolean EnableStrictDispersal = true;
+            public Boolean EnableTicketLossRatio = false;
+            public Int32 TicketLossSampleCount = 180;
+            public Int32 MaxUnstackingTicketDifference = 0;
+            public Int32 DisperseEvenlyByClanPlayers = 0;
+            public Boolean EnableUnstackingByPlayerStats = false;
+            public Boolean EnableLowPopulationAdjustments = false;
+            public Double RoutPercentage = 0;
 
             // Rush only
-            public double Stage1TicketPercentageToUnstackAdjustment = 0;
-            public double Stage2TicketPercentageToUnstackAdjustment = 0;
-            public double Stage3TicketPercentageToUnstackAdjustment = 0;
-            public double Stage4And5TicketPercentageToUnstackAdjustment = 0;
-            public double SecondsToCheckForNewStage = 10;
-            public bool EnableAdvancedRushUnstacking = false;
+            public Double Stage1TicketPercentageToUnstackAdjustment = 0;
+            public Double Stage2TicketPercentageToUnstackAdjustment = 0;
+            public Double Stage3TicketPercentageToUnstackAdjustment = 0;
+            public Double Stage4And5TicketPercentageToUnstackAdjustment = 0;
+            public Double SecondsToCheckForNewStage = 10;
+            public Boolean EnableAdvancedRushUnstacking = false;
 
-            public bool isDefault = true; // not a setting
+            public Boolean isDefault = true; // not a setting
         } // end PerModeSettings
 
         public class FetchInfo
@@ -394,65 +383,65 @@ namespace PRoConEvents
             public String EAGUID;
 
             // Updated on events
-            public int Team;
-            public int Squad;
+            public Int32 Team;
+            public Int32 Squad;
             public DateTime FirstSeenTimestamp; // on player join or plugin enable
             public DateTime FirstSpawnTimestamp;
             public DateTime LastSeenTimestamp;
-            public double ScoreRound;
-            public double KillsRound;
-            public double DeathsRound;
-            public int Rounds; // incremented OnRoundOverPlayers
-            public int Rank;
-            public bool IsDeployed;
+            public Double ScoreRound;
+            public Double KillsRound;
+            public Double DeathsRound;
+            public Int32 Rounds; // incremented OnRoundOverPlayers
+            public Int32 Rank;
+            public Boolean IsDeployed;
             public String SpawnChatMessage;
             public String SpawnYellMessage;
-            public bool QuietMessage;
+            public Boolean QuietMessage;
             public MoveInfo DelayedMove;
-            public int LastMoveTo;
-            public int LastMoveFrom;
-            public int ScrambledSquad;
-            public int OriginalSquad;
-            public int Role; // BF4
+            public Int32 LastMoveTo;
+            public Int32 LastMoveFrom;
+            public Int32 ScrambledSquad;
+            public Int32 OriginalSquad;
+            public Int32 Role; // BF4
 
             // Battlelog
             public String PersonaId;
             public String Tag;
-            public bool TagVerified;
+            public Boolean TagVerified;
             public String FullName { get { return (String.IsNullOrEmpty(Tag) ? Name : "[" + Tag + "]" + Name); } }
             public FetchInfo TagFetchStatus;
-            public double KDR;
-            public double SPM;
-            public double KPM;
-            public bool StatsVerified;
+            public Double KDR;
+            public Double SPM;
+            public Double KPM;
+            public Boolean StatsVerified;
             public FetchInfo StatsFetchStatus;
 
             // Computed
-            public double KDRRound;
-            public double SPMRound;
-            public double KPMRound;
+            public Double KDRRound;
+            public Double SPMRound;
+            public Double KPMRound;
 
             // Accumulated
-            public double ScoreTotal; // not including current round
-            public double KillsTotal; // not including current round
-            public double DeathsTotal; // not including current round
-            public int MovesTotal; // not including current round
-            public int MovesByMBTotal; // not include current round
+            public Double ScoreTotal; // not including current round
+            public Double KillsTotal; // not including current round
+            public Double DeathsTotal; // not including current round
+            public Int32 MovesTotal; // not including current round
+            public Int32 MovesByMBTotal; // not include current round
 
             //  Per-round state
-            public int MovesRound; // moves NOT made by this plugin
-            public int MovesByMBRound; // moves made by this plugin
+            public Int32 MovesRound; // moves NOT made by this plugin
+            public Int32 MovesByMBRound; // moves made by this plugin
             public DateTime MovedTimestamp;
             public DateTime MovedByMBTimestamp;
             public List<DateTime> MovedByMBHistory;
 
             // Based on settings
-            public int DispersalGroup;
-            public int Friendex; // index (key) to friend list
+            public Int32 DispersalGroup;
+            public Int32 Friendex; // index (key) to friend list
             public uint Whitelist; // bitmask flags, see WL_ALL
 
             // Commands
-            public bool Subscribed;
+            public Boolean Subscribed;
 
             public PlayerModel()
             {
@@ -506,7 +495,7 @@ namespace PRoConEvents
                 Role = ROLE_PLAYER;
             }
 
-            public PlayerModel(String name, int team) : this()
+            public PlayerModel(String name, Int32 team) : this()
             {
                 Name = name;
                 Team = team;
@@ -598,10 +587,10 @@ namespace PRoConEvents
 
         class TeamRoster
         {
-            public int Team = 0;
+            public Int32 Team = 0;
             public List<PlayerModel> Roster = null;
 
-            public TeamRoster(int team, List<PlayerModel> roster)
+            public TeamRoster(Int32 team, List<PlayerModel> roster)
             {
                 Team = team;
                 Roster = roster;
@@ -610,14 +599,14 @@ namespace PRoConEvents
 
         public class SquadRoster
         {
-            public int Squad = 0;
-            public double Metric = 0;
+            public Int32 Squad = 0;
+            public Double Metric = 0;
             public List<PlayerModel> Roster = null;
-            public int ClanTagCount = 0;
-            public int DispersalGroup = 0;
-            public int WhitelistCount = 0;
+            public Int32 ClanTagCount = 0;
+            public Int32 DispersalGroup = 0;
+            public Int32 WhitelistCount = 0;
 
-            public SquadRoster(int squad)
+            public SquadRoster(Int32 squad)
             {
                 Squad = squad;
                 Metric = 0;
@@ -627,7 +616,7 @@ namespace PRoConEvents
                 WhitelistCount = 0;
             }
 
-            public SquadRoster(int squad, List<PlayerModel> roster)
+            public SquadRoster(Int32 squad, List<PlayerModel> roster)
             {
                 Squad = squad;
                 Roster = roster;
@@ -643,21 +632,21 @@ namespace PRoConEvents
             public ForbidBecause Because = ForbidBecause.None;
             public String Name = String.Empty;
             public String Tag = String.Empty;
-            public int Source = -1;
+            public Int32 Source = -1;
             public String SourceName = String.Empty;
-            public int Destination = -1;
+            public Int32 Destination = -1;
             public String DestinationName = String.Empty;
             public String ChatBefore = String.Empty;
             public String YellBefore = String.Empty;
             public String ChatAfter = String.Empty;
             public String YellAfter = String.Empty;
-            public double Delay = 0;
-            public bool Fast = false;
-            public bool aborted = false;
+            public Double Delay = 0;
+            public Boolean Fast = false;
+            public Boolean aborted = false;
 
             public MoveInfo() { }
 
-            public MoveInfo(String name, String tag, int fromTeam, String fromName, int toTeam, String toName, double delay) : this()
+            public MoveInfo(String name, String tag, Int32 fromTeam, String fromName, Int32 toTeam, String toName, Double delay) : this()
             {
                 Name = name;
                 Tag = tag;
@@ -668,7 +657,7 @@ namespace PRoConEvents
                 Delay = delay;
             }
 
-            public void Format(MULTIbalancer plugin, String fmt, bool isYell, bool isBefore)
+            public void Format(MULTIbalancer plugin, String fmt, Boolean isYell, Boolean isBefore)
             {
                 String expanded = fmt;
 
@@ -754,7 +743,7 @@ namespace PRoConEvents
         public class DelayedRequest
         {
             public String Name;
-            public double MaxDelay; // in seconds
+            public Double MaxDelay; // in seconds
             public DateTime LastUpdate;
             public Action<DateTime> Request;
 
@@ -766,7 +755,7 @@ namespace PRoConEvents
                 Name = null;
             }
 
-            public DelayedRequest(double delay, DateTime last)
+            public DelayedRequest(Double delay, DateTime last)
             {
                 MaxDelay = delay;
                 LastUpdate = last;
@@ -800,12 +789,12 @@ namespace PRoConEvents
                 fPlugin = plugin;
             }
 
-            public int Count
+            public Int32 Count
             {
                 get { return (TagQueue.Count + StatsQueue.Count); }
             }
 
-            public bool Contains(String name)
+            public Boolean Contains(String name)
             {
                 return (TagQueue.Contains(name) || StatsQueue.Contains(name));
             }
@@ -828,16 +817,16 @@ namespace PRoConEvents
 
         public class Histogram
         {
-            public const int BIN_SIZE = 100;
-            public SortedDictionary<int, int> Bin;
-            public int MaxBin;
-            public int PeakBin;
-            public int MaxFrequency;
-            public int Total;
+            public const Int32 BIN_SIZE = 100;
+            public SortedDictionary<Int32, Int32> Bin;
+            public Int32 MaxBin;
+            public Int32 PeakBin;
+            public Int32 MaxFrequency;
+            public Int32 Total;
 
             public Histogram()
             {
-                this.Bin = new SortedDictionary<int, int>();
+                this.Bin = new SortedDictionary<Int32, Int32>();
                 this.MaxBin = 0;
                 this.PeakBin = 1;
                 this.MaxFrequency = 0;
@@ -855,15 +844,15 @@ namespace PRoConEvents
                 Bin[PeakBin] = 0;
             }
 
-            public void Add(int sample)
+            public void Add(Int32 sample)
             {
                 if (sample < 100) return;
-                int binNumber = sample / BIN_SIZE;
+                Int32 binNumber = sample / BIN_SIZE;
                 // insure bin and all bins up to this bin are initialized
                 if (!Bin.ContainsKey(binNumber))
                 {
                     Bin[binNumber] = 1;
-                    for (int i = 1; i < binNumber; ++i)
+                    for (Int32 i = 1; i < binNumber; ++i)
                     {
                         if (!Bin.ContainsKey(i)) Bin[i] = 0;
                     }
@@ -878,11 +867,11 @@ namespace PRoConEvents
                 ++Total;
             }
 
-            public List<String> Log(int maxLine)
+            public List<String> Log(Int32 maxLine)
             {
                 List<String> log = new List<String>();
                 // multiply normFactor into each frequency count to get a value less than or equal to maxLine
-                double normFactor = Convert.ToDouble(maxLine) / Convert.ToDouble(MaxFrequency);
+                Double normFactor = Convert.ToDouble(maxLine) / Convert.ToDouble(MaxFrequency);
                 log.Add(String.Format("Total ratios = {0}, bins = {1}, peak bin = {2}, peak count = {3}, scale factor = {4:F4}",
                     Total,
                     MaxBin,
@@ -890,12 +879,12 @@ namespace PRoConEvents
                     MaxFrequency,
                     normFactor));
 
-                foreach (int bin in Bin.Keys)
+                foreach (Int32 bin in Bin.Keys)
                 {
                     if (bin == 0) continue;
                     StringBuilder buf = new StringBuilder(String.Format("{0,5}:", bin * BIN_SIZE));
-                    int normFreq = (Bin[bin] == 0) ? 0 : Convert.ToInt32(Math.Ceiling(Bin[bin] * normFactor));
-                    for (int i = 0; i < normFreq; ++i)
+                    Int32 normFreq = (Bin[bin] == 0) ? 0 : Convert.ToInt32(Math.Ceiling(Bin[bin] * normFactor));
+                    for (Int32 i = 0; i < normFreq; ++i)
                     {
                         buf.Append("#");
                     }

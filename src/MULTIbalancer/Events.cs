@@ -20,18 +20,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Timers;
-using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -47,15 +38,6 @@ namespace PRoConEvents
     public partial class MULTIbalancer
     {
         /* ======================== OVERRIDES ============================= */
-
-
-
-
-
-
-
-
-
 
         public void OnPluginLoaded(String strHostName, String strPort, String strPRoConVersion)
         {
@@ -91,7 +73,6 @@ namespace PRoConEvents
                 "OnRoundTimeLimit"
             );
         }
-
 
         public void OnPluginEnable()
         {
@@ -129,7 +110,6 @@ namespace PRoConEvents
             fIsCacheEnabled = IsCacheEnabled(true);
         }
 
-
         public void OnPluginDisable()
         {
             fIsEnabled = false;
@@ -157,7 +137,6 @@ namespace PRoConEvents
             }
             ConsoleWrite("^1^bDisabled!", 0);
         }
-
 
         public override void OnVersion(String type, String ver)
         {
@@ -214,7 +193,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnPlayerSquadChange(String soldierName, int teamId, int squadId)
+        public override void OnPlayerSquadChange(String soldierName, Int32 teamId, Int32 squadId)
         {
             if (!fIsEnabled) return;
 
@@ -248,8 +227,7 @@ namespace PRoConEvents
             }
         }
 
-
-        public override void OnPlayerTeamChange(String soldierName, int teamId, int squadId)
+        public override void OnPlayerTeamChange(String soldierName, Int32 teamId, Int32 squadId)
         {
             if (!fIsEnabled) return;
 
@@ -274,9 +252,9 @@ namespace PRoConEvents
                 }
                 else if (!IsKnownPlayer(soldierName))
                 {
-                    int diff = 0;
-                    bool mustMove = false; // don't have a player model yet, can't determine if must move
-                    int reassignTo = ToTeam(soldierName, teamId, true, out diff, ref mustMove);
+                    Int32 diff = 0;
+                    Boolean mustMove = false; // don't have a player model yet, can't determine if must move
+                    Int32 reassignTo = ToTeam(soldierName, teamId, true, out diff, ref mustMove);
                     if (!ReassignNewPlayers)
                     {
                         DebugWrite("^4New player^0: ^b" + soldierName + "^n not reassigned, Reassign New Players set to False", 5);
@@ -303,10 +281,10 @@ namespace PRoConEvents
                 {
 
                     // If this was an MB move, finish it
-                    bool wasPluginMove = FinishMove(soldierName, teamId);
+                    Boolean wasPluginMove = FinishMove(soldierName, teamId);
 
                     // Handle remote disabling of unswitcher
-                    bool dontDoubleCount = false;
+                    Boolean dontDoubleCount = false;
                     if (fDisableUnswitcherByRemote)
                     {
                         DebugWrite("^nPlayer ^b" + soldierName + "^n moved to team " + teamId + ": ^8another plugin DISABLED the unswitcher!^0^n", 4);
@@ -367,7 +345,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnPlayerIsAlive(string soldierName, bool isAlive)
+        public override void OnPlayerIsAlive(String soldierName, Boolean isAlive)
         {
             if (!fIsEnabled) return;
 
@@ -383,7 +361,7 @@ namespace PRoConEvents
                 */
                 if (fPendingTeamChange.ContainsKey(soldierName))
                 {
-                    int team = fPendingTeamChange[soldierName];
+                    Int32 team = fPendingTeamChange[soldierName];
                     fPendingTeamChange.Remove(soldierName);
 
                     // Check if player is allowed to switch teams
@@ -410,7 +388,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnPlayerMovedByAdmin(string soldierName, int destinationTeamId, int destinationSquadId, bool forceKilled)
+        public override void OnPlayerMovedByAdmin(String soldierName, Int32 destinationTeamId, Int32 destinationSquadId, Boolean forceKilled)
         {
             if (!fIsEnabled) return;
 
@@ -437,7 +415,7 @@ namespace PRoConEvents
                         || player.LastMoveFrom != 0)
                         { // interrupted MB move, special case
                           // Do updates as needed
-                            bool interruptedMBMove = (player != null && player.LastMoveFrom != 0);
+                            Boolean interruptedMBMove = (player != null && player.LastMoveFrom != 0);
                             if (!interruptedMBMove)
                             {
                                 DebugWrite("^4^bADMIN^n moved player (REVERSED) ^b" + soldierName + "^n, " + GetPluginName() + " will respect this move", 4);
@@ -499,7 +477,6 @@ namespace PRoConEvents
         }
         */
 
-
         public override void OnPlayerKilled(Kill kKillerVictimDetails)
         {
             if (!fIsEnabled) return;
@@ -508,7 +485,7 @@ namespace PRoConEvents
             String victim = kKillerVictimDetails.Victim.SoldierName;
             String weapon = kKillerVictimDetails.DamageType;
 
-            bool isAdminKill = false;
+            Boolean isAdminKill = false;
             if (String.IsNullOrEmpty(killer))
             {
                 killer = victim;
@@ -523,7 +500,7 @@ namespace PRoConEvents
 
                 if (fGameState == GameState.Unknown || fGameState == GameState.Warmup)
                 {
-                    bool wasUnknown = (fGameState == GameState.Unknown);
+                    Boolean wasUnknown = (fGameState == GameState.Unknown);
                     fGameState = (TotalPlayerCount() < 4) ? GameState.Warmup : GameState.Playing;
                     if (wasUnknown || fGameState == GameState.Playing) DebugWrite("OnPlayerKilled: ^b^3Game state = " + fGameState, 6);
                     if (wasUnknown && fGameVersion == GameVersion.BF4) UpdateFactions();
@@ -592,8 +569,8 @@ namespace PRoConEvents
                 Since these detections are not completely reliable, do a minimal  amount of recovery,
                 don't do a full reset
                 */
-                int adjMaxSize = (fGameVersion == GameVersion.BF3) ? MaximumServerSize : (MaximumServerSize + 2); // for commanders
-                int totalPlayers = TotalPlayerCount();
+                Int32 adjMaxSize = (fGameVersion == GameVersion.BF3) ? MaximumServerSize : (MaximumServerSize + 2); // for commanders
+                Int32 totalPlayers = TotalPlayerCount();
                 if (fServerCrashed
                 || fGotLogin
                 || fRefreshCommand
@@ -623,7 +600,7 @@ namespace PRoConEvents
                     {
                         try
                         {
-                            int bf4Type = (fGameVersion != GameVersion.BF3) ? p.Type : ROLE_PLAYER;
+                            Int32 bf4Type = (fGameVersion != GameVersion.BF3) ? p.Type : ROLE_PLAYER;
                             UpdatePlayerModel(p.SoldierName, p.TeamID, p.SquadID, p.GUID, p.Score, p.Kills, p.Deaths, p.Rank, bf4Type);
                         }
                         catch (Exception e)
@@ -697,7 +674,6 @@ namespace PRoConEvents
             }
         }
 
-
         public override void OnServerInfo(CServerInfo serverInfo)
         {
             if (!fIsEnabled || serverInfo == null) return;
@@ -708,7 +684,7 @@ namespace PRoConEvents
 
             try
             {
-                double elapsedTimeInSeconds = DateTime.Now.Subtract(fLastServerInfoTimestamp).TotalSeconds;
+                Double elapsedTimeInSeconds = DateTime.Now.Subtract(fLastServerInfoTimestamp).TotalSeconds;
                 fLastServerInfoTimestamp = DateTime.Now;
                 if (fUpdateTicketsRequest != null) fUpdateTicketsRequest.LastUpdate = fLastServerInfoTimestamp;
 
@@ -764,14 +740,14 @@ namespace PRoConEvents
                 fServerUptime = serverInfo.ServerUptime;
 
                 // Update max tickets
-                int totalPlayers = TotalPlayerCount();
+                Int32 totalPlayers = TotalPlayerCount();
                 PerModeSettings perMode = GetPerModeSettings();
-                bool isRush = IsRush();
-                double minTickets = Double.MaxValue;
-                double maxTickets = 0;
-                double attacker = 0;
-                double defender = 0;
-                double[] oldTickets = new double[] { 0, fTickets[1], fTickets[2] };
+                Boolean isRush = IsRush();
+                Double minTickets = Double.MaxValue;
+                Double maxTickets = 0;
+                Double attacker = 0;
+                Double defender = 0;
+                Double[] oldTickets = new Double[] { 0, fTickets[1], fTickets[2] };
                 if (fServerInfo.TeamScores == null || fServerInfo.TeamScores.Count < 2) return;
                 foreach (TeamScore ts in fServerInfo.TeamScores)
                 {
@@ -832,7 +808,7 @@ namespace PRoConEvents
                 // Rush heuristic: if attacker tickets are higher than last check, new stage started
                 if (isRush && fServerInfo != null && !String.IsNullOrEmpty(fServerInfo.Map))
                 {
-                    int maxStages = GetRushMaxStages(fServerInfo.Map);
+                    Int32 maxStages = GetRushMaxStages(fServerInfo.Map);
                     if (fRushStage == 0)
                     {
                         fRushMaxTickets = defender;
@@ -891,9 +867,9 @@ namespace PRoConEvents
                 {
                     try
                     {
-                        double a1 = GetAverageTicketLossRate(1, false);
-                        double a2 = GetAverageTicketLossRate(2, false);
-                        double ratio = (a1 > a2) ? (a1 / Math.Max(1, a2)) : (a2 / Math.Max(1, a1));
+                        Double a1 = GetAverageTicketLossRate(1, false);
+                        Double a2 = GetAverageTicketLossRate(2, false);
+                        Double ratio = (a1 > a2) ? (a1 / Math.Max(1, a2)) : (a2 / Math.Max(1, a1));
                         ratio = Math.Min(ratio, 50.0); // cap at 50x
                         ratio = ratio * 100.0;
                         fTicketLossHistogram.Add(Convert.ToInt32(Math.Round(ratio)));
@@ -917,14 +893,13 @@ namespace PRoConEvents
             }
             finally
             {
-                double elapsedTime = DateTime.Now.Subtract(debugTime).TotalMilliseconds;
+                Double elapsedTime = DateTime.Now.Subtract(debugTime).TotalMilliseconds;
                 if (DebugLevel >= 8 || (DebugLevel >= 7 && elapsedTime > 100.0))
                 {
                     DebugWrite("^8OnServerInfo took ^b" + elapsedTime.ToString("F0") + "^n ms", 1);
                 }
             }
         }
-
 
         public override void OnGlobalChat(String speaker, String message)
         {
@@ -951,7 +926,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnTeamChat(String speaker, String message, int teamId)
+        public override void OnTeamChat(String speaker, String message, Int32 teamId)
         {
             if (!fIsEnabled) return;
             if (DebugLevel >= 8) ConsoleDebug("OnTeamChat(" + speaker + ", '" + message + "', " + teamId + ")");
@@ -976,7 +951,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnSquadChat(String speaker, String message, int teamId, int squadId)
+        public override void OnSquadChat(String speaker, String message, Int32 teamId, Int32 squadId)
         {
             if (!fIsEnabled) return;
 
@@ -1027,7 +1002,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnRoundOver(int winningTeamId)
+        public override void OnRoundOver(Int32 winningTeamId)
         {
             if (!fIsEnabled) return;
 
@@ -1057,7 +1032,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnLevelLoaded(String mapFileName, String Gamemode, int roundsPlayed, int roundsTotal)
+        public override void OnLevelLoaded(String mapFileName, String Gamemode, Int32 roundsPlayed, Int32 roundsTotal)
         {
             if (!fIsEnabled) return;
 
@@ -1095,10 +1070,10 @@ namespace PRoConEvents
 
             try
             {
-                int totalPlayers = TotalPlayerCount();
+                Int32 totalPlayers = TotalPlayerCount();
                 if (fGameState == GameState.Unknown || fGameState == GameState.Warmup)
                 {
-                    bool wasUnknown = (fGameState == GameState.Unknown);
+                    Boolean wasUnknown = (fGameState == GameState.Unknown);
                     fGameState = (totalPlayers < 4) ? GameState.Warmup : GameState.Playing;
                     if (wasUnknown || fGameState == GameState.Playing) DebugWrite("OnPlayerSpawned: ^b^3Game state = " + fGameState, 6);
                     if (wasUnknown && fGameVersion == GameVersion.BF4) UpdateFactions();
@@ -1143,8 +1118,7 @@ namespace PRoConEvents
             }
         }
 
-
-        public override void OnPlayerKilledByAdmin(string soldierName)
+        public override void OnPlayerKilledByAdmin(String soldierName)
         {
             if (!fIsEnabled) return;
 
@@ -1164,7 +1138,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnEndRound(int iWinningTeamID)
+        public override void OnEndRound(Int32 iWinningTeamID)
         {
             if (!fIsEnabled) return;
 
@@ -1178,7 +1152,7 @@ namespace PRoConEvents
             DebugWrite("^9^bGot OnRunNextLevel^n", 7);
         }
 
-        public override void OnTeamFactionOverride(int teamId, int faction)
+        public override void OnTeamFactionOverride(Int32 teamId, Int32 faction)
         {
             if (!fIsEnabled) return;
 
@@ -1189,7 +1163,7 @@ namespace PRoConEvents
             }
         }
 
-        public override void OnRoundTimeLimit(int limit)
+        public override void OnRoundTimeLimit(Int32 limit)
         {
             if (!fIsEnabled) return;
 
@@ -1197,10 +1171,7 @@ namespace PRoConEvents
             fRoundTimeLimit = limit / 100.0;
         }
 
-
-
-
-        public override void OnResponseError(List<String> lstRequestWords, string strError)
+        public override void OnResponseError(List<String> lstRequestWords, String strError)
         {
             if (!fIsEnabled) return;
             if (lstRequestWords == null || lstRequestWords.Count == 0) return;
@@ -1208,12 +1179,12 @@ namespace PRoConEvents
             {
                 String msg = "Request(" + String.Join(", ", lstRequestWords.ToArray()) + "): ERROR = " + strError;
 
-                int level = 7;
+                Int32 level = 7;
                 if (lstRequestWords[0] == "player.ping") level = 8;
 
                 DebugWrite("^9^bGot OnResponseError, " + msg, level);
 
-                bool isMove = false;
+                Boolean isMove = false;
                 if (lstRequestWords.Count > 2 && lstRequestWords[0] == "admin.movePlayer")
                 {
                     DebugWrite("^1Move of ^b" + lstRequestWords[1] + "^n failed with error: " + strError, 4);
@@ -1234,7 +1205,6 @@ namespace PRoConEvents
                 ConsoleException(e);
             }
         }
-
 
         /* Not really an override, but a hook for other plugins to call */
 
@@ -1274,29 +1244,29 @@ namespace PRoConEvents
                 Type type = typeof(String);
                 switch (parms[1])
                 {
-                    case "bool": type = typeof(bool); break;
-                    case "double": type = typeof(double); break;
-                    case "int": type = typeof(int); break;
+                    case "bool": type = typeof(Boolean); break;
+                    case "double": type = typeof(Double); break;
+                    case "int": type = typeof(Int32); break;
                     default: break;
                 }
                 String key = parms[2];
                 Object value = parms[3];
 
-                if (type == typeof(bool))
+                if (type == typeof(Boolean))
                 {
-                    bool v = false;
+                    Boolean v = false;
                     Boolean.TryParse(parms[3], out v);
                     value = (Boolean)v;
                 }
-                else if (type == typeof(double))
+                else if (type == typeof(Double))
                 {
-                    double v = 0;
+                    Double v = 0;
                     Double.TryParse(parms[3], out v);
                     value = (Double)v;
                 }
-                else if (type == typeof(int))
+                else if (type == typeof(Int32))
                 {
-                    int v = 0;
+                    Int32 v = 0;
                     Int32.TryParse(parms[3], out v);
                     value = (Int32)v;
                 }
@@ -1304,14 +1274,14 @@ namespace PRoConEvents
                 switch (key)
                 {
                     case "SetScrambleByCommand":
-                        if (type != typeof(bool))
+                        if (type != typeof(Boolean))
                         {
                             if (DebugLevel >= 5) ConsoleWarn("UpdatePluginData(" + calledFrom + ", " + key + ") expected bool, got " + parms[1]);
                             return;
                         }
                         else
                         {
-                            fScrambleByCommand = (bool)value;
+                            fScrambleByCommand = (Boolean)value;
                             if (fScrambleByCommand)
                             {
                                 DebugWrite("Plugin " + calledFrom + " turned team scrambling ON for this round!", 4);
@@ -1323,14 +1293,14 @@ namespace PRoConEvents
                         }
                         break;
                     case "DisableUnswitcher":
-                        if (type != typeof(bool))
+                        if (type != typeof(Boolean))
                         {
                             if (DebugLevel >= 5) ConsoleWarn("UpdatePluginData(" + calledFrom + ", " + key + ") expected bool, got " + parms[1]);
                             return;
                         }
                         else
                         {
-                            fDisableUnswitcherByRemote = (bool)value;
+                            fDisableUnswitcherByRemote = (Boolean)value;
                             if (fDisableUnswitcherByRemote)
                             {
                                 DebugWrite("Plugin " + calledFrom + " turned unswitching OFF for this round!", 4);
@@ -1379,7 +1349,6 @@ namespace PRoConEvents
                 if (DebugLevel >= 5) ConsoleWarn("UpdatePluginJSON parms[0]: caller name is invalid!");
                 return;
             }
-
 
             if (String.IsNullOrEmpty(parms[1]))
             {

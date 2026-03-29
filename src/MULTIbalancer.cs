@@ -20,18 +20,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Timers;
-using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -92,20 +82,19 @@ namespace PRoConEvents
 
         public enum ForceMove { Newest, Weakest, Random };
 
-
         /* Constants & Statics */
 
-        public const double SWAP_TIMEOUT = 600; // in seconds
+        public const Double SWAP_TIMEOUT = 600; // in seconds
 
-        public const double MODEL_TIMEOUT = 24 * 60; // in minutes
+        public const Double MODEL_TIMEOUT = 24 * 60; // in minutes
 
-        public const int CRASH_COUNT_HEURISTIC = 24; // player count difference signifies a crash
+        public const Int32 CRASH_COUNT_HEURISTIC = 24; // player count difference signifies a crash
 
-        public const int MIN_UPDATE_USAGE_COUNT = 20; // minimum number of plugin updates in use
+        public const Int32 MIN_UPDATE_USAGE_COUNT = 20; // minimum number of plugin updates in use
 
-        public const double CHECK_FOR_UPDATES_MINS = 12 * 60; // 12 hours
+        public const Double CHECK_FOR_UPDATES_MINS = 12 * 60; // 12 hours
 
-        public const double MIN_ADAPT_FAST = 30.0;
+        public const Double MIN_ADAPT_FAST = 30.0;
 
         public const String INVALID_NAME_TAG_GUID = "////////";
 
@@ -126,7 +115,6 @@ namespace PRoConEvents
 
         public static String[] ROLE_NAMES = new String[] { "PLAYER", "SPECTATOR", "COMMANDER", "MOBILE COMMANDER" };
 
-
         public const uint WL_BALANCE = 1 << 0; // B option
         public const uint WL_UNSTACK = 1 << 1; // U option
         public const uint WL_SWITCH = 1 << 2; // S option
@@ -135,17 +123,16 @@ namespace PRoConEvents
 
         public const uint WL_ALL = (WL_BALANCE | WL_UNSTACK | WL_SWITCH | WL_DISPERSE | WL_RANK);
 
-        public const int MIN_SAMPLE_COUNT = 15;
+        public const Int32 MIN_SAMPLE_COUNT = 15;
 
-        public const int FACTION_US = 0;
-        public const int FACTION_RU = 1;
-        public const int FACTION_CN = 2;
+        public const Int32 FACTION_US = 0;
+        public const Int32 FACTION_RU = 1;
+        public const Int32 FACTION_CN = 2;
 
-        public const int ROLE_PLAYER = 0;
-        public const int ROLE_SPECTATOR = 1;
-        public const int ROLE_COMMANDER_PC = 2;
-        public const int ROLE_COMMANDER_MOBILE = 3;
-
+        public const Int32 ROLE_PLAYER = 0;
+        public const Int32 ROLE_SPECTATOR = 1;
+        public const Int32 ROLE_COMMANDER_PC = 2;
+        public const Int32 ROLE_COMMANDER_MOBILE = 3;
 
         /* Inherited:
             this.PunkbusterPlayerInfoList = new Dictionary<String, CPunkbusterInfo>();
@@ -153,9 +140,9 @@ namespace PRoConEvents
         */
 
         // General
-        private bool fIsEnabled;
-        private bool fFinalizerActive = false;
-        private bool fAborted = false;
+        private Boolean fIsEnabled;
+        private Boolean fFinalizerActive = false;
+        private Boolean fAborted = false;
         private Dictionary<String, String> fModeToSimple = null;
         private Dictionary<String, Int32> fPendingTeamChange = null;
         private Thread fMoveThread = null;
@@ -164,14 +151,14 @@ namespace PRoConEvents
         private Thread fScramblerThread = null;
         private Thread fTimerThread = null;
         private List<String> fReservedSlots = null;
-        private bool fRefreshCommand = false;
-        private int fServerUptime = -1;
-        private bool fServerCrashed = false; // because fServerUptime >  fServerInfo.ServerUptime
+        private Boolean fRefreshCommand = false;
+        private Int32 fServerUptime = -1;
+        private Boolean fServerCrashed = false; // because fServerUptime >  fServerInfo.ServerUptime
         private DateTime fLastBalancedTimestamp = DateTime.MinValue;
         private DateTime fEnabledTimestamp = DateTime.MinValue;
         private String fLastMsg = null;
         private DateTime fLastVersionCheckTimestamp = DateTime.MinValue;
-        private double fTimeOutOfJoint = 0;
+        private Double fTimeOutOfJoint = 0;
         private List<PlayerModel>[] fDebugScramblerBefore = null;
         private List<PlayerModel>[] fDebugScramblerAfter = null;
         private List<PlayerModel>[] fDebugScramblerStartRound = null;
@@ -181,28 +168,28 @@ namespace PRoConEvents
         private String fPort;
         private List<String> fRushMap3Stages = null;
         private List<String> fRushMap5Stages = null;
-        private int[] fGroupAssignments = null; // index is group number, value is team id
+        private Int32[] fGroupAssignments = null; // index is group number, value is team id
         private List<String>[] fDispersalGroups;
-        private bool fNeedPlayerListUpdate = false;
-        private bool fWhileScrambling = false;
+        private Boolean fNeedPlayerListUpdate = false;
+        private Boolean fWhileScrambling = false;
         private DelayedRequest fExtrasLock;
         private List<String> fExtraNames = null;
-        private bool fGotLogin = false;
+        private Boolean fGotLogin = false;
         private Dictionary<String, String> fDebugScramblerSuspects = null;
         private DelayedRequest fUpdateTicketsRequest = null;
-        private Queue<double>[] fAverageTicketLoss = null;
+        private Queue<Double>[] fAverageTicketLoss = null;
         private Histogram fTicketLossHistogram = null;
-        private double fTotalRoundEndingSeconds = 0;
-        private double fTotalRoundEndingRounds = 0;
-        private bool fRevealSettings = false;
-        private bool fShowRiskySettings = false;
-        private bool fTestFastBalance = false;
+        private Double fTotalRoundEndingSeconds = 0;
+        private Double fTotalRoundEndingRounds = 0;
+        private Boolean fRevealSettings = false;
+        private Boolean fShowRiskySettings = false;
+        private Boolean fTestFastBalance = false;
         private DateTime fLastFastMoveTimestamp = DateTime.MinValue;
-        private bool fTestClanDispersal = false;
-        private bool fTestMBCommand = false;
+        private Boolean fTestClanDispersal = false;
+        private Boolean fTestMBCommand = false;
 
         // BF4
-        private int fMaxSquadSize = 4;
+        private Int32 fMaxSquadSize = 4;
         private GameVersion fGameVersion = GameVersion.BF3;
 
         // Data model
@@ -221,136 +208,136 @@ namespace PRoConEvents
         private Dictionary<String, MoveInfo> fMoving = null;
         private Queue<MoveInfo> fMoveQ = null;
         private List<String> fReassigned = null;
-        private int[] fTickets = null;
+        private Int32[] fTickets = null;
         private DateTime fListPlayersTimestamp;
         private Queue<DelayedRequest> fListPlayersQ = null;
         private Dictionary<String, String> fFriendlyMaps = null;
         private Dictionary<String, String> fFriendlyModes = null;
-        private double fMaxTickets = -1;
-        private double fRushMaxTickets = -1; // not normalized
+        private Double fMaxTickets = -1;
+        private Double fRushMaxTickets = -1; // not normalized
         private List<TeamScore> fFinalStatus = null;
-        private bool fIsFullRound = false;
+        private Boolean fIsFullRound = false;
         private UnstackState fUnstackState = UnstackState.Off;
         private DateTime fFullUnstackSwapTimestamp;
-        private int fRushStage = 0;
-        private double fRushPrevAttackerTickets = 0;
-        private double fRushAttackerStageLoss = 0;
-        private double fRushAttackerStageSamples = 0;
+        private Int32 fRushStage = 0;
+        private Double fRushPrevAttackerTickets = 0;
+        private Double fRushAttackerStageLoss = 0;
+        private Double fRushAttackerStageSamples = 0;
         private List<MoveInfo> fMoveStash = null;
-        private int fUnstackGroupCount = 0;
+        private Int32 fUnstackGroupCount = 0;
         private PriorityQueue fPriorityFetchQ = null;
-        private bool fIsCacheEnabled = false;
+        private Boolean fIsCacheEnabled = false;
         private DelayedRequest fScramblerLock = null;
-        private int fWinner = 0;
-        private bool fStageInProgress = false;
+        private Int32 fWinner = 0;
+        private Boolean fStageInProgress = false;
         private Dictionary<Int32, List<String>> fFriends;
         private List<String> fAllFriends;
         private List<DelayedRequest> fTimerRequestList = null;
         private DateTime fLastValidationTimestamp;
-        private int[] fFactionByTeam = null;
-        private double fRoundTimeLimit = 1.0;
-        private bool fScrambleByCommand = false;
-        private bool fDisableUnswitcherByRemote = false;
+        private Int32[] fFactionByTeam = null;
+        private Double fRoundTimeLimit = 1.0;
+        private Boolean fScrambleByCommand = false;
+        private Boolean fDisableUnswitcherByRemote = false;
         private DateTime fLastAutoChatTimestamp;
 
         // Operational statistics
-        private int fReassignedRound = 0;
-        private int fBalancedRound = 0;
-        private int fUnstackedRound = 0;
-        private int fUnswitchedRound = 0;
-        private int fExcludedRound = 0;
-        private int fExemptRound = 0;
-        private int fFailedRound = 0;
-        private int fTotalRound = 0;
-        private bool fBalanceIsActive = false;
-        private int fRoundsEnabled = 0;
-        private int fGrandTotalQuits = 0;
-        private int fGrandRageQuits = 0;
-        private int fTotalQuits = 0;
-        private int fRageQuits = 0;
-        private int fPlayerCount = 0;
-        private int fBF4CommanderCount = 0;
-        private int fBF4SpectatorCount = 0;
+        private Int32 fReassignedRound = 0;
+        private Int32 fBalancedRound = 0;
+        private Int32 fUnstackedRound = 0;
+        private Int32 fUnswitchedRound = 0;
+        private Int32 fExcludedRound = 0;
+        private Int32 fExemptRound = 0;
+        private Int32 fFailedRound = 0;
+        private Int32 fTotalRound = 0;
+        private Boolean fBalanceIsActive = false;
+        private Int32 fRoundsEnabled = 0;
+        private Int32 fGrandTotalQuits = 0;
+        private Int32 fGrandRageQuits = 0;
+        private Int32 fTotalQuits = 0;
+        private Int32 fRageQuits = 0;
+        private Int32 fPlayerCount = 0;
+        private Int32 fBF4CommanderCount = 0;
+        private Int32 fBF4SpectatorCount = 0;
 
         // Settings support
-        private Dictionary<int, Type> fEasyTypeDict = null;
-        private Dictionary<int, Type> fBoolDict = null;
-        private Dictionary<int, Type> fListStrDict = null;
+        private Dictionary<Int32, Type> fEasyTypeDict = null;
+        private Dictionary<Int32, Type> fBoolDict = null;
+        private Dictionary<Int32, Type> fListStrDict = null;
         private Dictionary<String, PerModeSettings> fPerMode = null;
 
         // Settings
-        public int SettingsVersion;
+        public Int32 SettingsVersion;
         public PresetItems Preset;
-        public bool EnableUnstacking;
-        public bool EnableAdminKillForFastBalance;
+        public Boolean EnableUnstacking;
+        public Boolean EnableAdminKillForFastBalance;
         public ForceMove SelectFastBalanceBy;
-        public bool EnableSettingsWizard;
+        public Boolean EnableSettingsWizard;
         public String WhichMode;
-        public bool MetroIsInMapRotation;
-        public int MaximumPlayersForMode;
-        public int LowestMaximumTicketsForMode;
-        public int HighestMaximumTicketsForMode;
+        public Boolean MetroIsInMapRotation;
+        public Int32 MaximumPlayersForMode;
+        public Int32 LowestMaximumTicketsForMode;
+        public Int32 HighestMaximumTicketsForMode;
         public PresetItems PreferredStyleOfBalancing;
-        public bool ApplySettingsChanges;
+        public Boolean ApplySettingsChanges;
 
-        public int DebugLevel;
-        public int MaximumServerSize;
-        public bool EnableBattlelogRequests;
-        public int MaximumRequestRate;
-        public double WaitTimeout;
+        public Int32 DebugLevel;
+        public Int32 MaximumServerSize;
+        public Boolean EnableBattlelogRequests;
+        public Int32 MaximumRequestRate;
+        public Double WaitTimeout;
         public BattlelogStats WhichBattlelogStats;
-        public int MaxTeamSwitchesByStrongPlayers; // disabled
-        public int MaxTeamSwitchesByWeakPlayers; // disabled
-        public double UnlimitedTeamSwitchingDuringFirstMinutesOfRound;
-        public bool Enable2SlotReserve; // disabled
-        public bool EnablerecruitCommand; // disabled
-        public bool EnableWhitelistingOfReservedSlotsList;
+        public Int32 MaxTeamSwitchesByStrongPlayers; // disabled
+        public Int32 MaxTeamSwitchesByWeakPlayers; // disabled
+        public Double UnlimitedTeamSwitchingDuringFirstMinutesOfRound;
+        public Boolean Enable2SlotReserve; // disabled
+        public Boolean EnablerecruitCommand; // disabled
+        public Boolean EnableWhitelistingOfReservedSlotsList;
         public String[] Whitelist;
         public List<String> fSettingWhitelist;
         public String[] DisperseEvenlyList;
         public List<String> fSettingDisperseEvenlyList;
         public String[] FriendsList;
         public List<String> fSettingFriendsList;
-        public double SecondsUntilAdaptiveSpeedBecomesFast;
-        public bool EnableInGameCommands;
-        public bool ReassignNewPlayers;
+        public Double SecondsUntilAdaptiveSpeedBecomesFast;
+        public Boolean EnableInGameCommands;
+        public Boolean ReassignNewPlayers;
 
-        public bool OnWhitelist;
-        public bool OnFriendsList;
-        public bool ApplyFriendsListToTeam;
-        public bool TopScorers;
-        public bool SameClanTagsInSquad;
-        public bool SameClanTagsInTeam;
-        public bool SameClanTagsForRankDispersal;
-        public bool LenientRankDispersal;
-        public double MinutesAfterJoining;
-        public double MinutesAfterBeingMoved;
-        public bool JoinedEarlyPhase; // disabled
-        public bool JoinedMidPhase; // disabled
-        public bool JoinedLatePhase; // disabled
+        public Boolean OnWhitelist;
+        public Boolean OnFriendsList;
+        public Boolean ApplyFriendsListToTeam;
+        public Boolean TopScorers;
+        public Boolean SameClanTagsInSquad;
+        public Boolean SameClanTagsInTeam;
+        public Boolean SameClanTagsForRankDispersal;
+        public Boolean LenientRankDispersal;
+        public Double MinutesAfterJoining;
+        public Double MinutesAfterBeingMoved;
+        public Boolean JoinedEarlyPhase; // disabled
+        public Boolean JoinedMidPhase; // disabled
+        public Boolean JoinedLatePhase; // disabled
 
-        public double[] EarlyPhaseTicketPercentageToUnstack;
-        public double[] MidPhaseTicketPercentageToUnstack;
-        public double[] LatePhaseTicketPercentageToUnstack;
-        public bool EnableTicketLossRateLogging;
+        public Double[] EarlyPhaseTicketPercentageToUnstack;
+        public Double[] MidPhaseTicketPercentageToUnstack;
+        public Double[] LatePhaseTicketPercentageToUnstack;
+        public Boolean EnableTicketLossRateLogging;
         public Speed SpellingOfSpeedNamesReminder;
         public Speed[] EarlyPhaseBalanceSpeed;
         public Speed[] MidPhaseBalanceSpeed;
         public Speed[] LatePhaseBalanceSpeed;
 
-        public bool OnlyByCommand; // true means hide override/hide OnlyOnNewMaps and OnlyOnFinalTicketPercentage
-        public bool OnlyOnNewMaps; // false means scramble every round
-        public double OnlyOnFinalTicketPercentage; // 0 means scramble regardless of final score
+        public Boolean OnlyByCommand; // true means hide override/hide OnlyOnNewMaps and OnlyOnFinalTicketPercentage
+        public Boolean OnlyOnNewMaps; // false means scramble every round
+        public Double OnlyOnFinalTicketPercentage; // 0 means scramble regardless of final score
         public DefineStrong ScrambleBy;
-        public bool KeepSquadsTogether;
-        public bool KeepClanTagsInSameTeam;
-        public bool KeepFriendsInSameTeam;
+        public Boolean KeepSquadsTogether;
+        public Boolean KeepClanTagsInSameTeam;
+        public Boolean KeepFriendsInSameTeam;
         public DivideByChoices DivideBy;
         public String ClanTagToDivideBy;
-        public double DelaySeconds;
+        public Double DelaySeconds;
 
-        public bool QuietMode;
-        public double YellDurationSeconds;
+        public Boolean QuietMode;
+        public Double YellDurationSeconds;
         public String BadBecauseMovedByBalancer;
         public String BadBecauseWinningTeam;
         public String BadBecauseBiggestTeam;
@@ -373,17 +360,17 @@ namespace PRoConEvents
 
         public String ShowInLog; // legacy variable, if defined as String.Empty, settings are pre-v1
         public String ShowCommandInLog; // command line to show info in plugin.log
-        public bool LogChat;
-        public bool EnableLoggingOnlyMode;
-        public bool EnableExternalLogging;
+        public Boolean LogChat;
+        public Boolean EnableLoggingOnlyMode;
+        public Boolean EnableExternalLogging;
         public String ExternalLogSuffix;
-        public bool EnableRiskyFeatures;
+        public Boolean EnableRiskyFeatures;
 
-        public bool EnableImmediateUnswitch;
-        public bool ForbidSwitchAfterAutobalance; // legacy pre-v1
-        public bool ForbidSwitchToWinningTeam; // legacy pre-v1
-        public bool ForbidSwitchToBiggestTeam; // legacy pre-v1
-        public bool ForbidSwitchAfterDispersal; // legacy pre-v1
+        public Boolean EnableImmediateUnswitch;
+        public Boolean ForbidSwitchAfterAutobalance; // legacy pre-v1
+        public Boolean ForbidSwitchToWinningTeam; // legacy pre-v1
+        public Boolean ForbidSwitchToBiggestTeam; // legacy pre-v1
+        public Boolean ForbidSwitchAfterDispersal; // legacy pre-v1
         public UnswitchChoice ForbidSwitchingAfterAutobalance;
         public UnswitchChoice ForbidSwitchingToWinningTeam;
         public UnswitchChoice ForbidSwitchingToBiggestTeam;
@@ -408,7 +395,6 @@ namespace PRoConEvents
                 return (fFriendlyModes.TryGetValue(fServerInfo.GameMode, out r)) ? r : fServerInfo.GameMode;
             }
         }
-
 
         /* Constructor */
 
@@ -453,22 +439,22 @@ namespace PRoConEvents
 
             fModeToSimple = new Dictionary<String, String>();
 
-            fEasyTypeDict = new Dictionary<int, Type>();
-            fEasyTypeDict.Add(0, typeof(int));
+            fEasyTypeDict = new Dictionary<Int32, Type>();
+            fEasyTypeDict.Add(0, typeof(Int32));
             fEasyTypeDict.Add(1, typeof(Int16));
             fEasyTypeDict.Add(2, typeof(Int32));
             fEasyTypeDict.Add(3, typeof(Int64));
-            fEasyTypeDict.Add(4, typeof(float));
-            fEasyTypeDict.Add(5, typeof(long));
+            fEasyTypeDict.Add(4, typeof(Single));
+            fEasyTypeDict.Add(5, typeof(Int64));
             fEasyTypeDict.Add(6, typeof(String));
             fEasyTypeDict.Add(7, typeof(String));
-            fEasyTypeDict.Add(8, typeof(double));
+            fEasyTypeDict.Add(8, typeof(Double));
 
-            fBoolDict = new Dictionary<int, Type>();
+            fBoolDict = new Dictionary<Int32, Type>();
             fBoolDict.Add(0, typeof(Boolean));
-            fBoolDict.Add(1, typeof(bool));
+            fBoolDict.Add(1, typeof(Boolean));
 
-            fListStrDict = new Dictionary<int, Type>();
+            fListStrDict = new Dictionary<Int32, Type>();
             fListStrDict.Add(0, typeof(String[]));
 
             fPerMode = new Dictionary<String, PerModeSettings>();
@@ -492,7 +478,7 @@ namespace PRoConEvents
             fMoveQ = new Queue<MoveInfo>();
             fReassigned = new List<String>();
             fReservedSlots = new List<String>();
-            fTickets = new int[5] { 0, 0, 0, 0, 0 };
+            fTickets = new Int32[5] { 0, 0, 0, 0, 0 };
             fFriendlyMaps = new Dictionary<String, String>();
             fFriendlyModes = new Dictionary<String, String>();
             fMaxTickets = -1;
@@ -522,7 +508,7 @@ namespace PRoConEvents
             fPort = String.Empty;
             fRushMap3Stages = new List<String>(new String[11] { "MP_007", "XP4_Quake", "XP5_002", "MP_012", "XP4_Rubble", "MP_Damage", "XP0_Caspian", "XP0_Firestorm", "XP1_001" /* BF4 */, "XP1_003" /* BF4 */, "XP2_003" });
             fRushMap5Stages = new List<String>(new String[6] { "MP_013", "XP3_Valley", "MP_017", "XP5_001", "MP_Prison", "MP_Siege" });
-            fGroupAssignments = new int[5] { 0, 0, 0, 0, 0 };
+            fGroupAssignments = new Int32[5] { 0, 0, 0, 0, 0 };
             fDispersalGroups = new List<String>[5] { null, new List<String>(), new List<String>(), new List<String>(), new List<String>() };
             fNeedPlayerListUpdate = false;
             fFriends = new Dictionary<Int32, List<String>>();
@@ -533,9 +519,9 @@ namespace PRoConEvents
             fGotLogin = false;
             fDebugScramblerSuspects = new Dictionary<String, String>();
             fTimerRequestList = new List<DelayedRequest>();
-            fAverageTicketLoss = new Queue<double>[3] { null, new Queue<double>(), new Queue<double>() };
+            fAverageTicketLoss = new Queue<Double>[3] { null, new Queue<Double>(), new Queue<Double>() };
             fTicketLossHistogram = new Histogram();
-            fFactionByTeam = new int[5] { -1, -1, -1, -1, -1 };
+            fFactionByTeam = new Int32[5] { -1, -1, -1, -1, -1 };
             fRevealSettings = false;
             fShowRiskySettings = false;
             fLastFastMoveTimestamp = DateTime.MinValue;
@@ -603,12 +589,11 @@ namespace PRoConEvents
             JoinedMidPhase = true;
             JoinedLatePhase = false;
 
-
             /* ===== SECTION 3 - Round Phase & Population Settings ===== */
 
-            EarlyPhaseTicketPercentageToUnstack = new double[3] { 0, 120, 120 };
-            MidPhaseTicketPercentageToUnstack = new double[3] { 0, 120, 120 };
-            LatePhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
+            EarlyPhaseTicketPercentageToUnstack = new Double[3] { 0, 120, 120 };
+            MidPhaseTicketPercentageToUnstack = new Double[3] { 0, 120, 120 };
+            LatePhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
 
             SpellingOfSpeedNamesReminder = Speed.Click_Here_For_Speed_Names;
 
@@ -714,9 +699,9 @@ namespace PRoConEvents
                     JoinedMidPhase = false;
                     JoinedLatePhase = false;
 
-                    EarlyPhaseTicketPercentageToUnstack = new double[3] { 110, 110, 110 };
-                    MidPhaseTicketPercentageToUnstack = new double[3] { 110, 110, 110 };
-                    LatePhaseTicketPercentageToUnstack = new double[3] { 110, 110, 110 };
+                    EarlyPhaseTicketPercentageToUnstack = new Double[3] { 110, 110, 110 };
+                    MidPhaseTicketPercentageToUnstack = new Double[3] { 110, 110, 110 };
+                    LatePhaseTicketPercentageToUnstack = new Double[3] { 110, 110, 110 };
 
                     EarlyPhaseBalanceSpeed = new Speed[3] { Speed.Fast, Speed.Fast, Speed.Fast };
                     MidPhaseBalanceSpeed = new Speed[3] { Speed.Fast, Speed.Fast, Speed.Fast };
@@ -752,9 +737,9 @@ namespace PRoConEvents
                     JoinedMidPhase = true;
                     JoinedLatePhase = true;
 
-                    EarlyPhaseTicketPercentageToUnstack = new double[3] { 0, 0, 200 };
-                    MidPhaseTicketPercentageToUnstack = new double[3] { 0, 200, 200 };
-                    LatePhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
+                    EarlyPhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 200 };
+                    MidPhaseTicketPercentageToUnstack = new Double[3] { 0, 200, 200 };
+                    LatePhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
 
                     EarlyPhaseBalanceSpeed = new Speed[3] { Speed.Slow, Speed.Slow, Speed.Slow };
                     MidPhaseBalanceSpeed = new Speed[3] { Speed.Slow, Speed.Slow, Speed.Slow };
@@ -790,9 +775,9 @@ namespace PRoConEvents
                     JoinedMidPhase = false;
                     JoinedLatePhase = true;
 
-                    EarlyPhaseTicketPercentageToUnstack = new double[3] { 110, 120, 120 };
-                    MidPhaseTicketPercentageToUnstack = new double[3] { 120, 120, 120 };
-                    LatePhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
+                    EarlyPhaseTicketPercentageToUnstack = new Double[3] { 110, 120, 120 };
+                    MidPhaseTicketPercentageToUnstack = new Double[3] { 120, 120, 120 };
+                    LatePhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
 
                     // TBD: Needs Speed.OverBalance (similar to Fast, but puts more players on losing team)
                     EarlyPhaseBalanceSpeed = new Speed[3] { Speed.Adaptive, Speed.Adaptive, Speed.Adaptive };
@@ -828,9 +813,9 @@ namespace PRoConEvents
                     JoinedMidPhase = true;
                     JoinedLatePhase = true;
 
-                    EarlyPhaseTicketPercentageToUnstack = new double[3] { 0, 0, 150 };
-                    MidPhaseTicketPercentageToUnstack = new double[3] { 0, 150, 200 };
-                    LatePhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
+                    EarlyPhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 150 };
+                    MidPhaseTicketPercentageToUnstack = new Double[3] { 0, 150, 200 };
+                    LatePhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
 
                     EarlyPhaseBalanceSpeed = new Speed[3] { Speed.Slow, Speed.Adaptive, Speed.Slow };
                     MidPhaseBalanceSpeed = new Speed[3] { Speed.Slow, Speed.Adaptive, Speed.Slow };
@@ -865,9 +850,9 @@ namespace PRoConEvents
                     JoinedMidPhase = true;
                     JoinedLatePhase = false;
 
-                    EarlyPhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
-                    MidPhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
-                    LatePhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
+                    EarlyPhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
+                    MidPhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
+                    LatePhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
 
                     EarlyPhaseBalanceSpeed = new Speed[3] { Speed.Adaptive, Speed.Adaptive, Speed.Adaptive };
                     MidPhaseBalanceSpeed = new Speed[3] { Speed.Adaptive, Speed.Adaptive, Speed.Adaptive };
@@ -902,14 +887,13 @@ namespace PRoConEvents
                     JoinedMidPhase = true;
                     JoinedLatePhase = false;
 
-                    EarlyPhaseTicketPercentageToUnstack = new double[3] { 0, 120, 120 };
-                    MidPhaseTicketPercentageToUnstack = new double[3] { 120, 120, 120 };
-                    LatePhaseTicketPercentageToUnstack = new double[3] { 0, 0, 0 };
+                    EarlyPhaseTicketPercentageToUnstack = new Double[3] { 0, 120, 120 };
+                    MidPhaseTicketPercentageToUnstack = new Double[3] { 120, 120, 120 };
+                    LatePhaseTicketPercentageToUnstack = new Double[3] { 0, 0, 0 };
 
                     EarlyPhaseBalanceSpeed = new Speed[3] { Speed.Unstack, Speed.Unstack, Speed.Unstack };
                     MidPhaseBalanceSpeed = new Speed[3] { Speed.Unstack, Speed.Unstack, Speed.Unstack };
                     LatePhaseBalanceSpeed = new Speed[3] { Speed.Unstack, Speed.Unstack, Speed.Unstack };
-
 
                     ForbidSwitchingAfterAutobalance = UnswitchChoice.Never;
                     ForbidSwitchingToWinningTeam = UnswitchChoice.Always;
@@ -931,8 +915,6 @@ namespace PRoConEvents
                     break;
             }
         }
-
-
 
         public String GetPluginName()
         {

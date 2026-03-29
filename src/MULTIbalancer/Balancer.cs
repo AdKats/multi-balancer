@@ -20,18 +20,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Timers;
-using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -48,14 +38,6 @@ namespace PRoConEvents
     {
         /* ======================== CORE ENGINE ============================= */
 
-
-
-
-
-
-
-
-
         private void BalanceAndUnstack(String name)
         {
 
@@ -64,20 +46,20 @@ namespace PRoConEvents
             PlayerModel player = null;
             String simpleMode = String.Empty;
             PerModeSettings perMode = null;
-            bool isStrong = false; // this player
-            int winningTeam = 0;
-            int losingTeam = 0;
-            int biggestTeam = 0;
-            int smallestTeam = 0;
-            int[] ascendingSize = null;
-            int[] descendingTickets = null;
+            Boolean isStrong = false; // this player
+            Int32 winningTeam = 0;
+            Int32 losingTeam = 0;
+            Int32 biggestTeam = 0;
+            Int32 smallestTeam = 0;
+            Int32[] ascendingSize = null;
+            Int32[] descendingTickets = null;
             String strongMsg = String.Empty;
-            int diff = 0;
+            Int32 diff = 0;
             DateTime now = DateTime.Now;
-            bool needsBalancing = false;
-            bool loggedStats = false;
-            bool isSQDM = IsSQDM();
-            bool isNonBalancingMode = IsNonBalancingMode();
+            Boolean needsBalancing = false;
+            Boolean loggedStats = false;
+            Boolean isSQDM = IsSQDM();
+            Boolean isNonBalancingMode = IsNonBalancingMode();
             String log = String.Empty;
 
             /* Sanity checks */
@@ -87,7 +69,7 @@ namespace PRoConEvents
                 return;
             }
 
-            int totalPlayerCount = TotalPlayerCount();
+            Int32 totalPlayerCount = TotalPlayerCount();
 
             if (DebugLevel >= 8) DebugBalance("BalanceAndUnstack(^b" + name + "^n), " + totalPlayerCount + " players");
 
@@ -122,7 +104,6 @@ namespace PRoConEvents
                 CheckDeativateBalancer("Fast balance is active");
                 return;
             }
-
 
             /* Pre-conditions */
 
@@ -166,8 +147,8 @@ namespace PRoConEvents
 
             String extractedTag = ExtractTag(player);
             Speed balanceSpeed = GetBalanceSpeed(perMode);
-            double unstackTicketRatio = GetUnstackTicketRatio(perMode);
-            int lastMoveFrom = player.LastMoveFrom;
+            Double unstackTicketRatio = GetUnstackTicketRatio(perMode);
+            Int32 lastMoveFrom = player.LastMoveFrom;
 
             if (totalPlayerCount >= (perMode.MaxPlayers - 1))
             {
@@ -177,7 +158,7 @@ namespace PRoConEvents
                 return;
             }
 
-            int floorPlayers = (perMode.EnableLowPopulationAdjustments) ? 4 : 6;
+            Int32 floorPlayers = (perMode.EnableLowPopulationAdjustments) ? 4 : 6;
             if (totalPlayerCount < floorPlayers)
             {
                 if (DebugLevel >= 6) DebugBalance("Not enough players in server, minimum is " + floorPlayers);
@@ -188,13 +169,13 @@ namespace PRoConEvents
 
             /* Check dispersals */
 
-            bool mustMove = false;
-            bool lenient = false;
-            int maxDispersalMoves = 2;
-            bool isDisperseByRank = IsRankDispersal(player);
-            bool isDisperseByList = IsInDispersalList(player, false);
+            Boolean mustMove = false;
+            Boolean lenient = false;
+            Int32 maxDispersalMoves = 2;
+            Boolean isDisperseByRank = IsRankDispersal(player);
+            Boolean isDisperseByList = IsInDispersalList(player, false);
             /* DCE */
-            bool isDisperseByClanPop = false;
+            Boolean isDisperseByClanPop = false;
             if (!isDisperseByList)
             {
                 isDisperseByClanPop = IsClanDispersal(player, false);
@@ -242,7 +223,7 @@ namespace PRoConEvents
             // Adjust for duration of balance active
             if (needsBalancing && fBalanceIsActive && balanceSpeed == Speed.Adaptive && fLastBalancedTimestamp != DateTime.MinValue)
             {
-                double secs = now.Subtract(fLastBalancedTimestamp).TotalSeconds;
+                Double secs = now.Subtract(fLastBalancedTimestamp).TotalSeconds;
                 if (secs > SecondsUntilAdaptiveSpeedBecomesFast)
                 {
                     DebugBalance("^8^bBalancing taking too long (" + secs.ToString("F0") + " secs)!^n^0 Forcing to Fast balance speed.");
@@ -256,7 +237,6 @@ namespace PRoConEvents
                 DebugBalance("^8^bTeam count difference is 4 or more (" + diff + ")!^n^0 Forcing to Fast balance speed.");
                 balanceSpeed = Speed.Fast;
             }
-
 
             String orSlow = (balanceSpeed == Speed.Slow) ? " or speed is Slow" : String.Empty;
 
@@ -393,18 +373,18 @@ namespace PRoConEvents
                     break;
             }
 
-            double above = ((fromList.Count * perMode.PercentOfTopOfTeamIsStrong) / 100.0) + 0.5;
-            int strongest = Math.Max(0, Convert.ToInt32(above));
-            int playerIndex = 0;
-            int minPlayers = (isSQDM) ? 5 : fromList.Count; // for SQDM, apply top/strong/weak only if team has 5 or more players
+            Double above = ((fromList.Count * perMode.PercentOfTopOfTeamIsStrong) / 100.0) + 0.5;
+            Int32 strongest = Math.Max(0, Convert.ToInt32(above));
+            Int32 playerIndex = 0;
+            Int32 minPlayers = (isSQDM) ? 5 : fromList.Count; // for SQDM, apply top/strong/weak only if team has 5 or more players
 
             // Exclude if TopScorers enabled and a top scorer on the team
-            int topPlayersPerTeam = 0;
+            Int32 topPlayersPerTeam = 0;
             if (balanceSpeed != Speed.Fast && (TopScorers || balanceSpeed == Speed.Slow))
             {
                 if (isSQDM)
                 {
-                    int maxCount = fromList.Count;
+                    Int32 maxCount = fromList.Count;
                     if (maxCount < 5)
                     {
                         topPlayersPerTeam = 0;
@@ -439,7 +419,7 @@ namespace PRoConEvents
                 }
             }
             // Loop is unconditional even when topPlayersPerTeam is zero, due to assigning playerIndex
-            for (int i = 0; i < fromList.Count; ++i)
+            for (Int32 i = 0; i < fromList.Count; ++i)
             {
                 if (fromList[i].Name == player.Name)
                 {
@@ -473,7 +453,7 @@ namespace PRoConEvents
             // Exclude if too soon since last move
             if ((!mustMove || lenient) && player.MovedByMBTimestamp != DateTime.MinValue)
             {
-                double mins = now.Subtract(player.MovedByMBTimestamp).TotalMinutes;
+                Double mins = now.Subtract(player.MovedByMBTimestamp).TotalMinutes;
                 if (mins < MinutesAfterBeingMoved)
                 {
                     DebugBalance("Excluding ^b" + player.Name + "^n: last move was " + mins.ToString("F0") + " minutes ago, less than required " + MinutesAfterBeingMoved.ToString("F0") + " minutes");
@@ -489,8 +469,8 @@ namespace PRoConEvents
             }
 
             // Exclude if player joined less than MinutesAfterJoining
-            double joinedMinutesAgo = GetPlayerJoinedTimeSpan(player).TotalMinutes;
-            double enabledForMinutes = now.Subtract(fEnabledTimestamp).TotalMinutes;
+            Double joinedMinutesAgo = GetPlayerJoinedTimeSpan(player).TotalMinutes;
+            Double enabledForMinutes = now.Subtract(fEnabledTimestamp).TotalMinutes;
             if ((!mustMove || lenient)
             && needsBalancing
             && (enabledForMinutes > MinutesAfterJoining)
@@ -520,7 +500,7 @@ namespace PRoConEvents
             // Exclude if in squad with same tags
             if ((!mustMove || lenient) && SameClanTagsInSquad && !isDisperseByClanPop)
             {
-                int cmt = CountMatchingTags(player, Scope.SameSquad);
+                Int32 cmt = CountMatchingTags(player, Scope.SameSquad);
                 if (cmt >= 2)
                 {
                     String et = ExtractTag(player);
@@ -534,7 +514,7 @@ namespace PRoConEvents
             // Exclude if in team with same tags
             if ((!mustMove || lenient) && SameClanTagsInTeam && !isDisperseByClanPop)
             {
-                int cmt = CountMatchingTags(player, Scope.SameTeam);
+                Int32 cmt = CountMatchingTags(player, Scope.SameTeam);
                 if (cmt >= 5 && !isDisperseByClanPop)
                 {
                     String et = ExtractTag(player);
@@ -548,7 +528,7 @@ namespace PRoConEvents
             // Exclude if on friends list
             if ((!mustMove || lenient) && OnFriendsList)
             {
-                int cmf = CountMatchingFriends(player, Scope.SameSquad);
+                Int32 cmf = CountMatchingFriends(player, Scope.SameSquad);
                 if (cmf >= 2)
                 {
                     DebugBalance("Excluding ^b" + player.FullName + "^n, " + cmf + " players in squad are friends (friendex = " + player.Friendex + ")");
@@ -581,8 +561,8 @@ namespace PRoConEvents
 
             /* Balance */
 
-            int toTeamDiff = 0;
-            int toTeam = ToTeam(name, player.Team, false, out toTeamDiff, ref mustMove); // take into account dispersal by Rank, etc.
+            Int32 toTeamDiff = 0;
+            Int32 toTeam = ToTeam(name, player.Team, false, out toTeamDiff, ref mustMove); // take into account dispersal by Rank, etc.
 
             if (toTeam == 0 || toTeam == player.Team)
             {
@@ -595,11 +575,11 @@ namespace PRoConEvents
                 }
             }
 
-            int numTeams = 2; //(isSQDM) ? 4 : 2; // TBD, what is max squad size for SQDM?
-            int maxTeamSlots = (MaximumServerSize / numTeams);
-            int maxTeamPerMode = (perMode.MaxPlayers / numTeams);
+            Int32 numTeams = 2; //(isSQDM) ? 4 : 2; // TBD, what is max squad size for SQDM?
+            Int32 maxTeamSlots = (MaximumServerSize / numTeams);
+            Int32 maxTeamPerMode = (perMode.MaxPlayers / numTeams);
             List<PlayerModel> lt = GetTeam(toTeam);
-            int toTeamSize = (lt == null) ? 0 : lt.Count;
+            Int32 toTeamSize = (lt == null) ? 0 : lt.Count;
 
             if (toTeamSize == maxTeamSlots || toTeamSize == maxTeamPerMode)
             {
@@ -620,14 +600,14 @@ namespace PRoConEvents
             }
 
             /* Moved ticket ratios up here for Rout Percentage exemption */
-            double ratio = 1;
-            double t1Tickets = 0;
-            double t2Tickets = 0;
+            Double ratio = 1;
+            Double t1Tickets = 0;
+            Double t2Tickets = 0;
             if (IsCTF() || IsCarrierAssault() || IsObliteration())
             {
                 // Use team points, not tickets
-                double usPoints = GetTeamPoints(1);
-                double ruPoints = GetTeamPoints(2);
+                Double usPoints = GetTeamPoints(1);
+                Double ruPoints = GetTeamPoints(2);
                 if (usPoints <= 0) usPoints = 1;
                 if (ruPoints <= 0) ruPoints = 1;
                 ratio = (usPoints > ruPoints) ? (usPoints / ruPoints) : (ruPoints / usPoints);
@@ -640,8 +620,8 @@ namespace PRoConEvents
                     if (IsRush())
                     {
                         // normalize Rush ticket ratio
-                        double attackers = fTickets[1];
-                        double defenders = fMaxTickets - (fRushMaxTickets - fTickets[2]);
+                        Double attackers = fTickets[1];
+                        Double defenders = fMaxTickets - (fRushMaxTickets - fTickets[2]);
                         defenders = Math.Max(defenders, attackers / 2);
                         ratio = (attackers > defenders) ? (attackers / Math.Max(1, defenders)) : (defenders / Math.Max(1, attackers));
                         t1Tickets = attackers;
@@ -675,7 +655,7 @@ namespace PRoConEvents
                 {
                     DebugBalance("Autobalancing because difference of " + diff + " is greater than " + MaxDiff() + ", [" + ts + "]");
                 }
-                double abTime = now.Subtract(fLastBalancedTimestamp).TotalSeconds;
+                Double abTime = now.Subtract(fLastBalancedTimestamp).TotalSeconds;
                 if (abTime > 0)
                 {
                     DebugBalance("^2^bAutobalance has been active for " + abTime.ToString("F1") + " seconds!");
@@ -690,7 +670,7 @@ namespace PRoConEvents
                 /* Exemptions */
 
                 // Handle Rout exemptions
-                double ratioPercentage = ratio * 100;
+                Double ratioPercentage = ratio * 100;
                 if (perMode.RoutPercentage > 100 && ratioPercentage >= perMode.RoutPercentage)
                 {
                     DebugBalance("Rout detected, winning/losing ratio of " + ratioPercentage.ToString("F0") + " is greater than " + perMode.RoutPercentage.ToString("F0"));
@@ -777,7 +757,7 @@ namespace PRoConEvents
 
                 /* Move for balance */
 
-                int origTeam = player.Team;
+                Int32 origTeam = player.Team;
                 String origName = GetTeamName(player.Team);
 
                 if (lastMoveFrom != 0)
@@ -857,7 +837,7 @@ namespace PRoConEvents
                 return;
             }
 
-            double tirMins = GetTimeInRoundMinutes();
+            Double tirMins = GetTimeInRoundMinutes();
 
             // Too soon to unstack
             if (tirMins < perMode.CheckTeamStackingAfterFirstMinutes)
@@ -921,7 +901,7 @@ namespace PRoConEvents
             */
 
             // Ticket difference greater than per-mode maximum for unstacking
-            int ticketGap = Convert.ToInt32(Math.Abs(t1Tickets - t2Tickets));
+            Int32 ticketGap = Convert.ToInt32(Math.Abs(t1Tickets - t2Tickets));
             if (perMode.MaxUnstackingTicketDifference > 0 && ticketGap > perMode.MaxUnstackingTicketDifference)
             {
                 DebugBalance("Ticket difference of " + ticketGap + " exceeds Max Unstacking Ticket Difference of " + perMode.MaxUnstackingTicketDifference + ", skipping ^b" + name + "^n");
@@ -935,8 +915,8 @@ namespace PRoConEvents
             // Using player stats instead of ticket ratio
             if (perMode.EnableUnstackingByPlayerStats)
             {
-                double a1 = GetAveragePlayerStats(1, perMode.DetermineStrongPlayersBy);
-                double a2 = GetAveragePlayerStats(2, perMode.DetermineStrongPlayersBy);
+                Double a1 = GetAveragePlayerStats(1, perMode.DetermineStrongPlayersBy);
+                Double a2 = GetAveragePlayerStats(2, perMode.DetermineStrongPlayersBy);
                 ratio = (a1 > a2) ? (a1 / Math.Max(0.01, a2)) : (a2 / Math.Max(0.01, a1));
                 ratio = Math.Min(ratio, 50.0); // cap at 50x
 
@@ -956,8 +936,8 @@ namespace PRoConEvents
             // Using ticket loss instead of ticket ratio?
             if (perMode.EnableTicketLossRatio && false)
             { // disable for this release
-                double a1 = GetAverageTicketLossRate(1, false);
-                double a2 = GetAverageTicketLossRate(2, false);
+                Double a1 = GetAverageTicketLossRate(1, false);
+                Double a2 = GetAverageTicketLossRate(2, false);
                 ratio = (a1 > a2) ? (a1 / Math.Max(1, a2)) : (a2 / Math.Max(1, a1));
                 ratio = Math.Min(ratio, 50.0); // cap at 50x
                 um = "Ticket loss ratio is " + (ratio * 100.0).ToString("F0") + " vs. unstack ratio of " + (unstackTicketRatio * 100.0).ToString("F0");
@@ -975,16 +955,16 @@ namespace PRoConEvents
 
             if (unstackTicketRatio == 0 || ratio < unstackTicketRatio)
             {
-                bool ticketRatioOk = true;
-                bool scoreRatioOk = true;
-                int maxStages = 4;
-                bool isRush = IsRush();
+                Boolean ticketRatioOk = true;
+                Boolean scoreRatioOk = true;
+                Int32 maxStages = 4;
+                Boolean isRush = IsRush();
                 if (fServerInfo != null && isRush) maxStages = GetRushMaxStages(fServerInfo.Map);
                 if (isRush && perMode.EnableAdvancedRushUnstacking && fRushStage > 0 && fRushStage < maxStages)
                 {
                     // Check team points as well as tickets
-                    double usPoints = GetTeamPoints(1);
-                    double ruPoints = GetTeamPoints(2);
+                    Double usPoints = GetTeamPoints(1);
+                    Double ruPoints = GetTeamPoints(2);
                     if (usPoints <= 0) usPoints = 1;
                     if (ruPoints <= 0) ruPoints = 1;
                     ratio = (usPoints > ruPoints) ? (usPoints / ruPoints) : (ruPoints / usPoints);
@@ -1019,7 +999,7 @@ namespace PRoConEvents
             3) Between groups, timer is > 0 and group count is 0
             */
 
-            double nsis = NextSwapGroupInSeconds(perMode); // returns 0 for case 1 and case 2
+            Double nsis = NextSwapGroupInSeconds(perMode); // returns 0 for case 1 and case 2
 
             if (nsis > 0)
             {
@@ -1064,8 +1044,7 @@ namespace PRoConEvents
 
             MoveInfo moveUnstack = null;
 
-
-            int origUnTeam = player.Team;
+            Int32 origUnTeam = player.Team;
             String origUnName = GetTeamName(player.Team);
             String strength = "strong";
 
@@ -1166,7 +1145,6 @@ namespace PRoConEvents
             // no increment total, handled by unstacking move
         }
 
-
         private void FastBalance(String trigger)
         {
 
@@ -1175,18 +1153,18 @@ namespace PRoConEvents
             PlayerModel player = null;
             String simpleMode = String.Empty;
             PerModeSettings perMode = GetPerModeSettings();
-            int winningTeam = 0;
-            int losingTeam = 0;
-            int biggestTeam = 0;
-            int smallestTeam = 0;
-            int[] ascendingSize = null;
-            int[] descendingTickets = null;
+            Int32 winningTeam = 0;
+            Int32 losingTeam = 0;
+            Int32 biggestTeam = 0;
+            Int32 smallestTeam = 0;
+            Int32[] ascendingSize = null;
+            Int32[] descendingTickets = null;
             String strongMsg = String.Empty;
-            int diff = 0;
+            Int32 diff = 0;
             DateTime now = DateTime.Now;
             String log = String.Empty;
-            int level = 6;
-            int adj = 1;
+            Int32 level = 6;
+            Int32 adj = 1;
 
             /* Sanity checks */
 
@@ -1225,7 +1203,7 @@ namespace PRoConEvents
                 return;
             }
 
-            int totalPlayerCount = TotalPlayerCount();
+            Int32 totalPlayerCount = TotalPlayerCount();
 
             if (DebugLevel >= (level + adj)) DebugFast(trigger + "Checking if fast balance is needed, " + totalPlayerCount + " players");
 
@@ -1241,7 +1219,7 @@ namespace PRoConEvents
                 return;
             }
 
-            int floorPlayers = (perMode.EnableLowPopulationAdjustments) ? 4 : 5;
+            Int32 floorPlayers = (perMode.EnableLowPopulationAdjustments) ? 4 : 5;
             if (totalPlayerCount < floorPlayers)
             {
                 if (DebugLevel >= (level + adj)) DebugFast("Not enough players in server, minimum is " + floorPlayers);
@@ -1297,7 +1275,7 @@ namespace PRoConEvents
                 }
                 else if (p.MovedByMBTimestamp != DateTime.MinValue)
                 { // exclude if moved recently 
-                    double mins = now.Subtract(p.MovedByMBTimestamp).TotalMinutes;
+                    Double mins = now.Subtract(p.MovedByMBTimestamp).TotalMinutes;
                     if (mins < MinutesAfterBeingMoved)
                     {
                         if (DebugLevel >= 7) DebugFast("Excluding ^b" + p.Name + "^n: last move was " + mins.ToString("F0") + " minutes ago, less than required " + MinutesAfterBeingMoved.ToString("F0") + " minutes");
@@ -1388,8 +1366,8 @@ namespace PRoConEvents
                             {
                                 return ((lhs == null) ? 0 : 1);
                             }
-                            double lTime = GetPlayerJoinedTimeSpan(lhs).TotalSeconds;
-                            double rTime = GetPlayerJoinedTimeSpan(rhs).TotalSeconds;
+                            Double lTime = GetPlayerJoinedTimeSpan(lhs).TotalSeconds;
+                            Double rTime = GetPlayerJoinedTimeSpan(rhs).TotalSeconds;
                             if (lTime < rTime) return 1;
                             if (lTime > rTime) return -1;
                             return 0;
@@ -1413,9 +1391,9 @@ namespace PRoConEvents
 
             if (DebugLevel >= 7) ConsoleDebug("Move for fast balance");
 
-            int origTeam = player.Team;
+            Int32 origTeam = player.Team;
             String origName = GetTeamName(player.Team);
-            int lastMoveFrom = player.LastMoveFrom;
+            Int32 lastMoveFrom = player.LastMoveFrom;
 
             if (lastMoveFrom != 0)
             {
@@ -1454,10 +1432,9 @@ namespace PRoConEvents
 
         }
 
-
-        private bool IsKnownPlayer(String name)
+        private Boolean IsKnownPlayer(String name)
         {
-            bool check = false;
+            Boolean check = false;
             lock (fAllPlayers)
             {
                 check = fAllPlayers.Contains(name);
@@ -1465,10 +1442,10 @@ namespace PRoConEvents
             return check;
         }
 
-        private bool AddNewPlayer(String name, int team)
+        private Boolean AddNewPlayer(String name, Int32 team)
         {
-            bool known = false;
-            bool needsFetch = false;
+            Boolean known = false;
+            Boolean needsFetch = false;
             PlayerModel player = null;
             lock (fKnownPlayers)
             {
@@ -1502,8 +1479,8 @@ namespace PRoConEvents
 
         private void RemovePlayer(String name)
         {
-            bool gameChange = false;
-            bool removeFetch = false;
+            Boolean gameChange = false;
+            Boolean removeFetch = false;
             lock (fKnownPlayers)
             {
                 if (fKnownPlayers.ContainsKey(name))
@@ -1536,10 +1513,9 @@ namespace PRoConEvents
             }
         }
 
-
-        private void UpdatePlayerModel(String name, int team, int squad, String eaGUID, int score, int kills, int deaths, int rank, int role)
+        private void UpdatePlayerModel(String name, Int32 team, Int32 squad, String eaGUID, Int32 score, Int32 kills, Int32 deaths, Int32 rank, Int32 role)
         {
-            bool known = false;
+            Boolean known = false;
             if (!IsKnownPlayer(name))
             {
                 switch (fPluginState)
@@ -1583,7 +1559,7 @@ namespace PRoConEvents
                 }
             }
 
-            int unTeam = -2;
+            Int32 unTeam = -2;
             PlayerModel m = null;
 
             lock (fKnownPlayers)
@@ -1616,7 +1592,7 @@ namespace PRoConEvents
 
             // Computed
             m.KDRRound = m.KillsRound / Math.Max(1, m.DeathsRound);
-            double mins = (m.FirstSpawnTimestamp == DateTime.MinValue) ? 1 : Math.Max(1, DateTime.Now.Subtract(m.FirstSpawnTimestamp).TotalMinutes);
+            Double mins = (m.FirstSpawnTimestamp == DateTime.MinValue) ? 1 : Math.Max(1, DateTime.Now.Subtract(m.FirstSpawnTimestamp).TotalMinutes);
             m.SPMRound = m.ScoreRound / mins;
             m.KPMRound = m.KillsRound / mins;
 
@@ -1632,10 +1608,9 @@ namespace PRoConEvents
             }
         }
 
-
-        private void UpdatePlayerTeam(String name, int team)
+        private void UpdatePlayerTeam(String name, Int32 team)
         {
-            bool isKnown = IsKnownPlayer(name);
+            Boolean isKnown = IsKnownPlayer(name);
             if (!isKnown)
             {
                 lock (fKnownPlayers)
@@ -1716,7 +1691,7 @@ namespace PRoConEvents
                 {
                     try
                     {
-                        int bf4Type = (fGameVersion != GameVersion.BF3) ? p.Type : ROLE_PLAYER;
+                        Int32 bf4Type = (fGameVersion != GameVersion.BF3) ? p.Type : ROLE_PLAYER;
                         UpdatePlayerModel(p.SoldierName, p.TeamID, p.SquadID, p.GUID, p.Score, p.Kills, p.Deaths, p.Rank, bf4Type);
                         CheckAbortMove(p.SoldierName);
                     }
@@ -1736,8 +1711,7 @@ namespace PRoConEvents
             DebugWrite("^9ValidateModel: ^b^3Game state = " + fGameState, 6);
         }
 
-
-        private bool CheckTeamSwitch(String name, int toTeam)
+        private Boolean CheckTeamSwitch(String name, Int32 toTeam)
         {
 
             if (fPluginState != PluginState.Active || fGameState != GameState.Playing) return false;
@@ -1745,9 +1719,9 @@ namespace PRoConEvents
             // Get model
             PlayerModel player = GetPlayer(name);
             if (player == null) return false;
-            bool bogusMove = false;
-            int lastMoveTo = 0;
-            int lastMoveFrom = player.LastMoveFrom;
+            Boolean bogusMove = false;
+            Int32 lastMoveTo = 0;
+            Int32 lastMoveFrom = player.LastMoveFrom;
 
             // Same team?
             if (toTeam == player.Team)
@@ -1797,7 +1771,7 @@ namespace PRoConEvents
             }
 
             // Check if move already in progress for this player and abort it
-            bool sendAbortMessage = false;
+            Boolean sendAbortMessage = false;
             lock (fMoveStash)
             {
                 if (fMoveStash.Count > 0)
@@ -1838,11 +1812,11 @@ namespace PRoConEvents
             }
 
             // Check forbidden cases
-            bool isSQDM = IsSQDM();
-            bool isDispersal = IsInDispersalList(player, false);
-            bool isRank = IsRankDispersal(player);
-            bool isClanDispersal = IsClanDispersal(player, false);
-            bool forbidden = (((isDispersal || isRank || isClanDispersal) && Forbid(perMode, ForbidSwitchingAfterDispersal)) || (player.MovesByMBRound > 0 && !isSQDM && Forbid(perMode, ForbidSwitchingAfterAutobalance)));
+            Boolean isSQDM = IsSQDM();
+            Boolean isDispersal = IsInDispersalList(player, false);
+            Boolean isRank = IsRankDispersal(player);
+            Boolean isClanDispersal = IsClanDispersal(player, false);
+            Boolean forbidden = (((isDispersal || isRank || isClanDispersal) && Forbid(perMode, ForbidSwitchingAfterDispersal)) || (player.MovesByMBRound > 0 && !isSQDM && Forbid(perMode, ForbidSwitchingAfterAutobalance)));
 
             // Unlimited time?
             if (!forbidden && UnlimitedTeamSwitchingDuringFirstMinutesOfRound > 0 && GetTimeInRoundMinutes() <= UnlimitedTeamSwitchingDuringFirstMinutesOfRound)
@@ -1863,17 +1837,17 @@ namespace PRoConEvents
             }
 
             // Helps?
-            int diff = 0;
-            int biggestTeam = 0;
-            int smallestTeam = 0;
-            int winningTeam = 0;
-            int losingTeam = 0;
-            int[] ascendingSize = null;
-            int[] descendingTickets = null;
-            int fromTeam = player.Team;
+            Int32 diff = 0;
+            Int32 biggestTeam = 0;
+            Int32 smallestTeam = 0;
+            Int32 winningTeam = 0;
+            Int32 losingTeam = 0;
+            Int32[] ascendingSize = null;
+            Int32[] descendingTickets = null;
+            Int32 fromTeam = player.Team;
             MoveInfo move = null;
-            bool toLosing = false;
-            bool toSmallest = false;
+            Boolean toLosing = false;
+            Boolean toSmallest = false;
 
             /*
             A player that was previously moved by the plugin is forbidden from moving to any
@@ -1887,13 +1861,13 @@ namespace PRoConEvents
 
             AnalyzeTeams(out diff, out ascendingSize, out descendingTickets, out biggestTeam, out smallestTeam, out winningTeam, out losingTeam);
 
-            int iFrom = 0;
-            int iTo = 0;
+            Int32 iFrom = 0;
+            Int32 iTo = 0;
 
             if (isSQDM)
             {
                 // Moving to any team with fewer tickets is encouraged
-                for (int i = 0; i < descendingTickets.Length; ++i)
+                for (Int32 i = 0; i < descendingTickets.Length; ++i)
                 {
                     if (fromTeam == descendingTickets[i]) iFrom = i;
                     if (toTeam == descendingTickets[i]) iTo = i;
@@ -1920,7 +1894,7 @@ namespace PRoConEvents
             if (isSQDM)
             {
                 // Moving to any team with fewer players is encouraged
-                for (int i = 0; i < ascendingSize.Length; ++i)
+                for (Int32 i = 0; i < ascendingSize.Length; ++i)
                 {
                     if (fromTeam == ascendingSize[i]) iFrom = i;
                     if (toTeam == ascendingSize[i]) iTo = i;
@@ -1961,9 +1935,9 @@ namespace PRoConEvents
             }
 
             // Allow if ticket/point difference is less than allowed margin
-            double win = 0;
-            double lose = 0;
-            double margin = 100;
+            Double win = 0;
+            Double lose = 0;
+            Double margin = 100;
             if (IsCTF() || IsCarrierAssault() || IsObliteration())
             {
                 win = GetTeamPoints(winningTeam);
@@ -1997,9 +1971,8 @@ namespace PRoConEvents
                 }
             }
 
-
             // Otherwise, do not allow the team switch
-            int origTeam = player.Team;
+            Int32 origTeam = player.Team;
             String origName = GetTeamName(player.Team);
 
             if (lastMoveFrom != 0 && toTeam != lastMoveFrom)
@@ -2102,7 +2075,7 @@ namespace PRoConEvents
             This can happen when another plugin, particularly another instance of MB, is moving players.
             Players get into a ping-poing unswitch loop. Adding a time check will prevent this.
             */
-            double esm = DateTime.Now.Subtract(player.MovedTimestamp).TotalSeconds;
+            Double esm = DateTime.Now.Subtract(player.MovedTimestamp).TotalSeconds;
             if (esm < 15)
             {
                 DebugUnswitch("IGNORED: switch by ^b" + name + "^n, too soon (" + esm.ToString("F1") + " secs ago) since last move, maybe another plugin is switching this player?");
@@ -2159,7 +2132,7 @@ namespace PRoConEvents
             {
                 if (fMoveQ.Count > 0)
                 {
-                    bool foundAbort = false;
+                    Boolean foundAbort = false;
                     foreach (MoveInfo mi in fMoveQ)
                     {
                         if (mi.Name == name)
@@ -2184,8 +2157,8 @@ namespace PRoConEvents
 
         private void SpawnUpdate(String name)
         {
-            bool ok = false;
-            bool updated = false;
+            Boolean ok = false;
+            Boolean updated = false;
             DateTime now = DateTime.Now;
             lock (fKnownPlayers)
             {
@@ -2217,12 +2190,11 @@ namespace PRoConEvents
             }
         }
 
-
         private void KillUpdate(String killer, String victim)
         {
             if (fPluginState != PluginState.Active) return;
-            bool okVictim = false;
-            bool okKiller = false;
+            Boolean okVictim = false;
+            Boolean okKiller = false;
             DateTime now = DateTime.Now;
             TimeSpan tir = TimeSpan.FromSeconds(0); // Time In Round
             lock (fKnownPlayers)
@@ -2269,8 +2241,7 @@ namespace PRoConEvents
             }
         }
 
-
-        private void StartMoveImmediate(MoveInfo move, bool sendMessages)
+        private void StartMoveImmediate(MoveInfo move, Boolean sendMessages)
         {
             // Do an immediate move, also used by the move thread
             if (!fIsEnabled || fPluginState != PluginState.Active)
@@ -2295,7 +2266,7 @@ namespace PRoConEvents
             // Do the move
             if (!EnableLoggingOnlyMode)
             {
-                int toSquad = ToSquad(move.Name, move.Destination);
+                Int32 toSquad = ToSquad(move.Name, move.Destination);
                 ServerCommand("admin.movePlayer", move.Name, move.Destination.ToString(), toSquad.ToString(), "false");
                 ScheduleListPlayers(10);
             }
@@ -2322,7 +2293,7 @@ namespace PRoConEvents
             DebugWrite(doing + move.Name + "^n from " + move.SourceName + " to " + move.DestinationName + r, 4);
         }
 
-        private bool FinishMove(String name, int team)
+        private Boolean FinishMove(String name, Int32 team)
         {
             // If this is an MB move, handle it
             MoveInfo move = null;
@@ -2458,8 +2429,7 @@ namespace PRoConEvents
             }
         }
 
-
-        private void Reassign(String name, int fromTeam, int toTeam, int diff)
+        private void Reassign(String name, Int32 fromTeam, Int32 toTeam, Int32 diff)
         {
             if (toTeam == 0) toTeam = fromTeam;
             // This is not a known player yet, so not PlayerModel to use
@@ -2474,7 +2444,7 @@ namespace PRoConEvents
             {
                 DebugWrite(doing + name + "^n to " + GetTeamName(toTeam) + " team" + because, 4);
             }
-            int toSquad = ToSquad(name, toTeam);
+            Int32 toSquad = ToSquad(name, toTeam);
             if (!EnableLoggingOnlyMode)
             {
                 if (fromTeam != toTeam) fReassigned.Add(name);
@@ -2506,7 +2476,7 @@ namespace PRoConEvents
             }
         }
 
-        private bool IsModelInSync()
+        private Boolean IsModelInSync()
         {
             lock (fMoving)
             {
@@ -2521,7 +2491,7 @@ namespace PRoConEvents
             a move for balance MB has completed. If fMoving still
             contains the player's name, the move failed.
             */
-            bool completedMove = true;
+            Boolean completedMove = true;
             lock (fMoving)
             {
                 if (fMoving.ContainsKey(name))
@@ -2542,7 +2512,7 @@ namespace PRoConEvents
             a reassignment of a player by MB has completed. If fReassigned still
             contains the player's name, the move failed.
             */
-            bool completedReassign = true;
+            Boolean completedReassign = true;
             lock (fReassigned)
             {
                 if (fReassigned.Contains(name))
@@ -2567,7 +2537,7 @@ namespace PRoConEvents
             Chat(who, what, QuietMode);
         }
 
-        private void Chat(String who, String what, bool quiet)
+        private void Chat(String who, String what, Boolean quiet)
         {
             String doing = null;
             if (String.IsNullOrEmpty(what)) return;
@@ -2656,8 +2626,8 @@ namespace PRoConEvents
 
         private void GarbageCollectKnownPlayers()
         {
-            int n = 0;
-            bool revalidate = false;
+            Int32 n = 0;
+            Boolean revalidate = false;
             lock (fKnownPlayers)
             {
                 List<String> garbage = new List<String>();
@@ -2705,13 +2675,13 @@ namespace PRoConEvents
             }
         }
 
-        private Phase GetPhase(PerModeSettings perMode, bool verbose)
+        private Phase GetPhase(PerModeSettings perMode, Boolean verbose)
         {
             if (perMode == null) return Phase.Mid;
             // earlyTickets relative to max for count down, 0 for count up
             // lateTickets relative to 0 for count down, max for count up
-            double earlyTickets = perMode.DefinitionOfEarlyPhaseFromStart;
-            double lateTickets = perMode.DefinitionOfLatePhaseFromEnd;
+            Double earlyTickets = perMode.DefinitionOfEarlyPhaseFromStart;
+            Double lateTickets = perMode.DefinitionOfLatePhaseFromEnd;
             Phase phase = Phase.Mid;
 
             if (fServerInfo == null) return phase;
@@ -2722,22 +2692,22 @@ namespace PRoConEvents
             }
 
             // Special handling for CTF & Carrier Assault modes
-            bool isCTF = IsCTF();
-            bool isCarrierAssault = IsCarrierAssault();
-            bool isObliteration = IsObliteration();
+            Boolean isCTF = IsCTF();
+            Boolean isCarrierAssault = IsCarrierAssault();
+            Boolean isObliteration = IsObliteration();
             if (isCTF || isCarrierAssault || isObliteration)
             {
                 if (fRoundStartTimestamp == DateTime.MinValue) return Phase.Early;
 
-                double earlyMinutes = earlyTickets;
-                double lateMinutes = lateTickets;
+                Double earlyMinutes = earlyTickets;
+                Double lateMinutes = lateTickets;
 
                 // TBD - assume max round time is 20 minutes for CTF at 100%
                 // TBD - assume max round time is 30 minutes for CRL/CRS at 100%
-                double maxMinutes = ((isCTF) ? 20 : 30) * fRoundTimeLimit;
+                Double maxMinutes = ((isCTF) ? 20 : 30) * fRoundTimeLimit;
                 if (verbose && DebugLevel >= 8) ConsoleDebug("fRoundTimeLimit = " + (fRoundTimeLimit * 100).ToString("F0") + ", maxMinutes = " + maxMinutes);
                 //double totalRoundMins = DateTime.Now.Subtract(fRoundStartTimestamp).TotalMinutes;
-                double totalRoundMins = GetTimeInRoundMinutes();
+                Double totalRoundMins = GetTimeInRoundMinutes();
 
                 /* moved to ValidateSettings, keep here for reference
                 // Late is higher priority than early
@@ -2764,9 +2734,9 @@ namespace PRoConEvents
 
             if (fServerInfo.TeamScores == null || fServerInfo.TeamScores.Count < 2) return Phase.Mid;
 
-            double tickets = -1;
-            double goal = 0;
-            bool countDown = true;
+            Double tickets = -1;
+            Double goal = 0;
+            Boolean countDown = true;
 
             if (fMaxTickets == -1) return Phase.Early;
 
@@ -2854,15 +2824,15 @@ namespace PRoConEvents
             return phase;
         }
 
-        private Population GetPopulation(PerModeSettings perMode, bool verbose)
+        private Population GetPopulation(PerModeSettings perMode, Boolean verbose)
         {
             if (fServerInfo == null) return Population.Medium;
 
-            int highPop = perMode.DefinitionOfHighPopulationForPlayers;
-            int lowPop = perMode.DefinitionOfLowPopulationForPlayers;
+            Int32 highPop = perMode.DefinitionOfHighPopulationForPlayers;
+            Int32 lowPop = perMode.DefinitionOfLowPopulationForPlayers;
             Population pop = Population.Low;
 
-            int totalPop = TotalPlayerCount();
+            Int32 totalPop = TotalPlayerCount();
 
             if (totalPop <= lowPop)
             {
@@ -2882,11 +2852,11 @@ namespace PRoConEvents
             return pop;
         }
 
-        private double GetUnstackTicketRatio(PerModeSettings perMode)
+        private Double GetUnstackTicketRatio(PerModeSettings perMode)
         {
             Phase phase = GetPhase(perMode, false);
             Population pop = GetPopulation(perMode, false);
-            double unstackTicketRatio = 0;
+            Double unstackTicketRatio = 0;
 
             if (perMode.CheckTeamStackingAfterFirstMinutes == 0) return 0;
 
@@ -2925,7 +2895,7 @@ namespace PRoConEvents
             // apply rush adjustment
             if (IsRush() && fRushStage > 0 && fRushStage <= 5 && unstackTicketRatio > 100)
             {
-                double adj = 0;
+                Double adj = 0;
                 switch (fRushStage)
                 {
                     case 1: adj = perMode.Stage1TicketPercentageToUnstackAdjustment; break;
@@ -2942,7 +2912,7 @@ namespace PRoConEvents
 
             if (AdjustForMetro(perMode))
             {
-                double old = unstackTicketRatio;
+                Double old = unstackTicketRatio;
                 switch (phase)
                 {
                     case Phase.Early: unstackTicketRatio = 0; break;
@@ -3040,7 +3010,7 @@ namespace PRoConEvents
                 return;
             }
 
-            Dictionary<String, double> propValues = new Dictionary<String, double>();
+            Dictionary<String, Double> propValues = new Dictionary<String, Double>();
             propValues["kdRatio"] = -1;
             propValues["timePlayed"] = -1;
             propValues["kills"] = -1;
@@ -3064,7 +3034,7 @@ namespace PRoConEvents
 
                     String entryValue = (String)(entry.Value.ToString());
 
-                    double dValue = -1;
+                    Double dValue = -1;
                     if (!String.IsNullOrEmpty(entryValue)) Double.TryParse(entryValue, out dValue);
                     propValues[entryKey] = (Double.IsNaN(dValue)) ? -1 : dValue;
                 }
@@ -3072,12 +3042,12 @@ namespace PRoConEvents
             }
 
             // Now set the player values, starting with AllTime
-            double allTimeMinutes = Math.Max(1, propValues["timePlayed"] / 60);
-            double kills = propValues["kills"];
+            Double allTimeMinutes = Math.Max(1, propValues["timePlayed"] / 60);
+            Double kills = propValues["kills"];
             kills = (kills < 1) ? 0 : kills;
-            double deaths = propValues["deaths"];
+            Double deaths = propValues["deaths"];
             deaths = (deaths < 1) ? 1 : deaths;
-            double kdr = propValues["kdRatio"];
+            Double kdr = propValues["kdRatio"];
             if (kdr < 0)
             {
                 kdr = kills / deaths;
@@ -3092,12 +3062,12 @@ namespace PRoConEvents
             if (WhichBattlelogStats == BattlelogStats.Reset && propValues["rsTimePlayed"] > 0)
             {
                 type = "Reset";
-                double resetMinutes = Math.Max(1, propValues["rsTimePlayed"] / 60);
-                double resetKDR = propValues["rsKills"] / Math.Max(1, propValues["rsDeaths"]);
+                Double resetMinutes = Math.Max(1, propValues["rsTimePlayed"] / 60);
+                Double resetKDR = propValues["rsKills"] / Math.Max(1, propValues["rsDeaths"]);
                 if (resetKDR > 0) player.KDR = resetKDR;
-                double resetSPM = propValues["rsScore"] / resetMinutes;
+                Double resetSPM = propValues["rsScore"] / resetMinutes;
                 if (resetSPM > 0) player.SPM = resetSPM;
-                double resetKPM = propValues["rsKills"] / resetMinutes;
+                Double resetKPM = propValues["rsKills"] / resetMinutes;
                 if (resetKPM > 0) player.KPM = resetKPM;
             }
             player.StatsFetchStatus.State = FetchState.Succeeded;
@@ -3106,7 +3076,6 @@ namespace PRoConEvents
             String ver = fGameVersion.ToString();
             DebugFetch("^4Player " + ver + " stats updated ^0^b" + player.Name + "^n, " + msg);
         }
-
 
         private void Scrambler(List<TeamScore> teamScores)
         {
@@ -3150,7 +3119,7 @@ namespace PRoConEvents
                 return;
             }
 
-            int current = fServerInfo.CurrentRound + 1; // zero based index
+            Int32 current = fServerInfo.CurrentRound + 1; // zero based index
             if (!fScrambleByCommand && OnlyOnNewMaps && current < fServerInfo.TotalRounds)
             {
                 DebugScrambler("Only scrambling new maps and this is only round " + current + " of " + fServerInfo.TotalRounds);
@@ -3163,8 +3132,8 @@ namespace PRoConEvents
                 return;
             }
 
-            int totalPlayers = TotalPlayerCount();
-            int minNeeded = (perMode.EnableLowPopulationAdjustments) ? 6 : 16;
+            Int32 totalPlayers = TotalPlayerCount();
+            Int32 minNeeded = (perMode.EnableLowPopulationAdjustments) ? 6 : 16;
             if (!KeepSquadsTogether && !KeepClanTagsInSameTeam && !KeepFriendsInSameTeam)
             {
                 DebugScrambler("All Keep settings are False, relaxing min needed requirement!");
@@ -3183,13 +3152,13 @@ namespace PRoConEvents
                     DebugScrambler("DEBUG: no final team scores");
                     return;
                 }
-                bool countDown = true;
+                Boolean countDown = true;
 
                 if (fMaxTickets == -1) return;
 
-                double goal = fMaxTickets;
-                double a = (teamScores[0].Score == 1) ? 0 : teamScores[0].Score;
-                double b = (teamScores[1].Score == 1) ? 0 : teamScores[1].Score;
+                Double goal = fMaxTickets;
+                Double a = (teamScores[0].Score == 1) ? 0 : teamScores[0].Score;
+                Double b = (teamScores[1].Score == 1) ? 0 : teamScores[1].Score;
 
                 /*
                 if (IsRush()) {
@@ -3229,7 +3198,7 @@ namespace PRoConEvents
                 */
 
                 String smsg = String.Empty;
-                double ratio = ComputeTicketRatio(a, b, goal, countDown, out smsg);
+                Double ratio = ComputeTicketRatio(a, b, goal, countDown, out smsg);
                 DebugScrambler(smsg);
 
                 if ((ratio * 100) < OnlyOnFinalTicketPercentage)
@@ -3256,20 +3225,19 @@ namespace PRoConEvents
             }
         }
 
-
-        private void ScrambleLoneWolves(List<PlayerModel> loneWolves, Dictionary<int, SquadRoster> squads, int whichTeam)
+        private void ScrambleLoneWolves(List<PlayerModel> loneWolves, Dictionary<Int32, SquadRoster> squads, Int32 whichTeam)
         {
             // Add lone wolves to empty squads
-            int key = 0;
-            int emptyId = 1;
+            Int32 key = 0;
+            Int32 emptyId = 1;
             SquadRoster home = null;
-            bool filling = false;
+            Boolean filling = false;
             // Do Team 1 first
             foreach (PlayerModel wolf in loneWolves)
             {
                 if (wolf.Team != whichTeam)
                     continue;
-                bool goback = true;
+                Boolean goback = true;
                 while (goback)
                 {
                     if (!filling)
@@ -3308,7 +3276,7 @@ namespace PRoConEvents
             }
         }
 
-        private void ScrambleByCommand(int winner, bool logOnly)
+        private void ScrambleByCommand(Int32 winner, Boolean logOnly)
         {
             try
             {
@@ -3360,9 +3328,9 @@ namespace PRoConEvents
                 DateTime last = DateTime.MinValue;
                 while (fIsEnabled)
                 {
-                    double delay = 0;
+                    Double delay = 0;
                     DateTime since = DateTime.MinValue;
-                    bool logOnly = false;
+                    Boolean logOnly = false;
 
                     fWhileScrambling = false;
                     lock (fExtrasLock)
@@ -3404,7 +3372,7 @@ namespace PRoConEvents
                         // wait specified number of seconds
                         if (delay > 0)
                         {
-                            bool listUpdated = false;
+                            Boolean listUpdated = false;
                             while (DateTime.Now.Subtract(since).TotalSeconds < delay)
                             {
                                 try
@@ -3479,9 +3447,9 @@ namespace PRoConEvents
                         List<PlayerModel> ruHaveNoSquad = new List<PlayerModel>();
                         List<SquadRoster> usSquadOfOne = new List<SquadRoster>();
                         List<SquadRoster> ruSquadOfOne = new List<SquadRoster>();
-                        Dictionary<int, SquadRoster> squads = new Dictionary<int, SquadRoster>(); // key int is (team * 1000) + squad
+                        Dictionary<Int32, SquadRoster> squads = new Dictionary<Int32, SquadRoster>(); // key int is (team * 1000) + squad
                         List<PlayerModel> loneWolves = new List<PlayerModel>();
-                        int key = 0;
+                        Int32 key = 0;
                         String debugMsg = String.Empty;
 
                         foreach (String egg in toScramble)
@@ -3503,7 +3471,7 @@ namespace PRoConEvents
                                     continue; // skip players not in a squad
                                 }
                                 key = 9000; // free pool
-                                int squadId = clone.Squad;
+                                Int32 squadId = clone.Squad;
                                 if (KeepSquadsTogether)
                                 {
                                     key = (Math.Max(0, clone.Team) * 1000) + Math.Max(0, clone.Squad);
@@ -3522,7 +3490,7 @@ namespace PRoConEvents
                                 {
                                     String tt = ExtractTag(clone);
                                     if (tt == null) tt = String.Empty;
-                                    int numInSquad = CountMatchingTags(clone, Scope.SameSquad);
+                                    Int32 numInSquad = CountMatchingTags(clone, Scope.SameSquad);
                                     // Keep players with same clan tag in the same team
                                     //if (numInSquad >= 2) {
                                     key = (Math.Max(0, clone.Team) * 1000) + Math.Max(0, clone.Squad); // 0 is okay, makes lone-wolf pool
@@ -3607,7 +3575,7 @@ namespace PRoConEvents
                         */
 
                         // Sum up the metric for each squad
-                        foreach (int k in squads.Keys)
+                        foreach (Int32 k in squads.Keys)
                         {
                             SquadRoster sr = squads[k];
                             if (sr.Roster.Count == 1)
@@ -3693,7 +3661,7 @@ namespace PRoConEvents
                                     break;
                                 case DivideByChoices.DispersalGroup:
                                     {
-                                        int[] gCount = new int[3] { 0, 0, 0 };
+                                        Int32[] gCount = new Int32[3] { 0, 0, 0 };
                                         foreach (PlayerModel p in sr.Roster)
                                         {
                                             if (IsInDispersalList(p, true))
@@ -3736,16 +3704,16 @@ namespace PRoConEvents
 
                         // Prepare the new team lists
                         List<PlayerModel> usScrambled = new List<PlayerModel>();
-                        Dictionary<int, SquadRoster> usSquads = new Dictionary<int, SquadRoster>();
-                        double usMetric = 0;
+                        Dictionary<Int32, SquadRoster> usSquads = new Dictionary<Int32, SquadRoster>();
+                        Double usMetric = 0;
                         List<PlayerModel> ruScrambled = new List<PlayerModel>();
-                        Dictionary<int, SquadRoster> ruSquads = new Dictionary<int, SquadRoster>();
-                        double ruMetric = 0;
+                        Dictionary<Int32, SquadRoster> ruSquads = new Dictionary<Int32, SquadRoster>();
+                        Double ruMetric = 0;
 
                         // Dole out squads, keeping metric in balance, starting with the losing team
                         List<PlayerModel> target = (fWinner == 0 || fWinner == 1) ? ruScrambled : usScrambled;
-                        Dictionary<int, SquadRoster> targetSquadTable = (fWinner == 0 || fWinner == 1) ? ruSquads : usSquads;
-                        int teamMax = MaximumServerSize / 2;
+                        Dictionary<Int32, SquadRoster> targetSquadTable = (fWinner == 0 || fWinner == 1) ? ruSquads : usSquads;
+                        Int32 teamMax = MaximumServerSize / 2;
                         debugMsg = String.Empty;
 
                         // Pre-process DivideBy setting
@@ -3780,7 +3748,7 @@ namespace PRoConEvents
 
                         SquadRoster squad = (all.Count > 0) ? all[0] : null;
                         List<PlayerModel> opposing = null;
-                        Dictionary<int, SquadRoster> opposingSquadTable = null;
+                        Dictionary<Int32, SquadRoster> opposingSquadTable = null;
                         do
                         {
                             if (squad == null) break;
@@ -3871,9 +3839,9 @@ namespace PRoConEvents
                         // Make sure player counts aren't too out of balance
                         if (usScrambled.Count <= teamMax && ruScrambled.Count <= teamMax && Math.Abs(usScrambled.Count - ruScrambled.Count) > 1)
                         {
-                            int needed = Math.Abs(usScrambled.Count - ruScrambled.Count) / 2;
-                            int toTeamId = 0;
-                            int targetDispersalGroup = 0;
+                            Int32 needed = Math.Abs(usScrambled.Count - ruScrambled.Count) / 2;
+                            Int32 toTeamId = 0;
+                            Int32 targetDispersalGroup = 0;
                             List<PlayerModel> opposingCopy = new List<PlayerModel>();
                             List<PlayerModel> tmpCopy = new List<PlayerModel>();
                             List<PlayerModel> oppHaveNoSquad = null;
@@ -3968,7 +3936,7 @@ namespace PRoConEvents
                             }
                             oppHaveNoSquad.Clear();
                             // Since team list is sorted, take from the weak end of the team
-                            for (int j = tmpCopy.Count - 1; j >= 0; --j)
+                            for (Int32 j = tmpCopy.Count - 1; j >= 0; --j)
                             {
                                 opposingCopy.Add(tmpCopy[j]);
                             }
@@ -4003,7 +3971,7 @@ namespace PRoConEvents
                                     }
 
                                     // Make sure squad filler is coming from doesn't have clan tags to keep together
-                                    int cmt = 0;
+                                    Int32 cmt = 0;
                                     SquadRoster fillerSquad = null;
                                     if ((KeepClanTagsInSameTeam || KeepSquadsTogether) && filler.Squad > 0 && opposingSquadTable.TryGetValue(filler.Squad, out fillerSquad) && fillerSquad != null)
                                     {
@@ -4012,7 +3980,7 @@ namespace PRoConEvents
                                             if (ft == ExtractTag(mate)) ++cmt;
                                         }
 
-                                        int required = (KeepClanTagsInSameTeam) ? 1 : 2;
+                                        Int32 required = (KeepClanTagsInSameTeam) ? 1 : 2;
 
                                         if (cmt >= required)
                                         {
@@ -4033,7 +4001,7 @@ namespace PRoConEvents
                                     // Otherwise, our candidate filler player is the one to go
                                     try
                                     {
-                                        int formerSquad = filler.Squad;
+                                        Int32 formerSquad = filler.Squad;
                                         AssignFillerToTeam(filler, toTeamId, target, targetSquadTable);
                                         opposing.Remove(filler);
                                         SquadRoster fromSquad = null;
@@ -4127,10 +4095,10 @@ namespace PRoConEvents
                         }
 
                         // Assert that no squad has more than fMaxSquadSize players
-                        Dictionary<int, int> playerCount = new Dictionary<int, int>();
+                        Dictionary<Int32, Int32> playerCount = new Dictionary<Int32, Int32>();
                         foreach (PlayerModel clone in usScrambled)
                         {
-                            int num = 0;
+                            Int32 num = 0;
                             if (clone.ScrambledSquad < 1 || clone.ScrambledSquad >= SQUAD_NAMES.Length)
                             {
                                 ConsoleDebug("ASSERT: After unsquading T1, ^b" + clone.FullName + "^n has invalid ScrambledSquad = " + clone.ScrambledSquad);
@@ -4143,7 +4111,7 @@ namespace PRoConEvents
                             }
                             playerCount[clone.Squad] = num;
                         }
-                        foreach (int squadId in playerCount.Keys)
+                        foreach (Int32 squadId in playerCount.Keys)
                         {
                             if (playerCount[squadId] > fMaxSquadSize)
                             {
@@ -4153,7 +4121,7 @@ namespace PRoConEvents
                         playerCount.Clear();
                         foreach (PlayerModel clone in ruScrambled)
                         {
-                            int num = 0;
+                            Int32 num = 0;
                             if (clone.ScrambledSquad < 1 || clone.ScrambledSquad >= SQUAD_NAMES.Length)
                             {
                                 ConsoleDebug("ASSERT: After unsquading T2, ^b" + clone.FullName + "^n has invalid ScrambledSquad = " + clone.ScrambledSquad);
@@ -4166,7 +4134,7 @@ namespace PRoConEvents
                             }
                             playerCount[clone.Squad] = num;
                         }
-                        foreach (int squadId in playerCount.Keys)
+                        foreach (Int32 squadId in playerCount.Keys)
                         {
                             if (playerCount[squadId] > fMaxSquadSize)
                             {
@@ -4234,8 +4202,7 @@ namespace PRoConEvents
             }
         }
 
-
-        private void AssignSquadToTeam(SquadRoster squad, Dictionary<int, SquadRoster> squadTable, List<PlayerModel> usScrambled, List<PlayerModel> ruScrambled, List<PlayerModel> origTarget)
+        private void AssignSquadToTeam(SquadRoster squad, Dictionary<Int32, SquadRoster> squadTable, List<PlayerModel> usScrambled, List<PlayerModel> ruScrambled, List<PlayerModel> origTarget)
         {
             /*
             The PlayerModel object is still live, so we can't change managed properties like Team or Squad.
@@ -4244,14 +4211,14 @@ namespace PRoConEvents
             command to assign the player to that squad in the destination team.
             */
             List<PlayerModel> target = origTarget;
-            int teamMax = MaximumServerSize / 2;
+            Int32 teamMax = MaximumServerSize / 2;
 
             if (usScrambled.Count >= teamMax && ruScrambled.Count >= teamMax)
             {
                 DebugScrambler("BOTH teams full! Skipping remaining free pool!");
                 return;
             }
-            int wasSquad = squad.Roster[0].Squad;
+            Int32 wasSquad = squad.Roster[0].Squad;
 
             // Remap if there is a squad collision
             if (squadTable.ContainsKey(squad.Squad))
@@ -4259,7 +4226,7 @@ namespace PRoConEvents
                 RemapSquad(squadTable, squad);
             }
             squadTable[squad.Squad] = squad;
-            int wasTeam = squad.Roster[0].Team;
+            Int32 wasTeam = squad.Roster[0].Team;
 
             String special = String.Empty;
             if (squad.WhitelistCount > 0 && (wasTeam == 1 || wasTeam == 2))
@@ -4273,7 +4240,7 @@ namespace PRoConEvents
             DebugScrambler(st + "/" + GetSquadName(wasSquad) + " scrambled to " + gt + "/" + GetSquadName(squad.Squad) + special);
 
             // Assign the squad to the target team
-            int toTeam = (target == usScrambled) ? 1 : 2;
+            Int32 toTeam = (target == usScrambled) ? 1 : 2;
             foreach (PlayerModel clone in squad.Roster)
             {
                 clone.ScrambledSquad = squad.Squad;
@@ -4284,8 +4251,6 @@ namespace PRoConEvents
                 }
             }
         }
-
-
 
         private void SwapSameClanTags(ref List<PlayerModel> usScrambled, ref List<PlayerModel> ruScrambled)
         {
@@ -4308,21 +4273,21 @@ namespace PRoConEvents
                 String usName = GetTeamName(1);
                 String ruName = GetTeamName(2);
 
-                Dictionary<String, int[]> matesDistribution = new Dictionary<String, int[]>();
+                Dictionary<String, Int32[]> matesDistribution = new Dictionary<String, Int32[]>();
 
                 // Calculate distribution between the two teams
                 foreach (PlayerModel clone in usScrambled)
                 {
                     String tagOrFriendex = ExtractTagOrFriendex(clone);
                     if (String.IsNullOrEmpty(tagOrFriendex)) continue;
-                    int[] teamCounts = null;
+                    Int32[] teamCounts = null;
                     if (matesDistribution.TryGetValue(tagOrFriendex, out teamCounts) && teamCounts != null)
                     {
                         teamCounts[1] = teamCounts[1] + 1;
                     }
                     else
                     {
-                        teamCounts = new int[3] { 0, 0, 0 };
+                        teamCounts = new Int32[3] { 0, 0, 0 };
                         teamCounts[1] = teamCounts[1] + 1;
                         matesDistribution[tagOrFriendex] = teamCounts;
                     }
@@ -4331,14 +4296,14 @@ namespace PRoConEvents
                 {
                     String tagOrFriendex = ExtractTagOrFriendex(clone);
                     if (String.IsNullOrEmpty(tagOrFriendex)) continue;
-                    int[] teamCounts = null;
+                    Int32[] teamCounts = null;
                     if (matesDistribution.TryGetValue(tagOrFriendex, out teamCounts) && teamCounts != null)
                     {
                         teamCounts[2] = teamCounts[2] + 1;
                     }
                     else
                     {
-                        teamCounts = new int[3] { 0, 0, 0 };
+                        teamCounts = new Int32[3] { 0, 0, 0 };
                         teamCounts[2] = teamCounts[2] + 1;
                         matesDistribution[tagOrFriendex] = teamCounts;
                     }
@@ -4368,24 +4333,24 @@ namespace PRoConEvents
                 }
 
                 // Build squad table
-                Dictionary<int, SquadRoster> squads = new Dictionary<int, SquadRoster>();
+                Dictionary<Int32, SquadRoster> squads = new Dictionary<Int32, SquadRoster>();
                 foreach (PlayerModel us in usScrambled)
                 {
-                    int key = (1 * 1000) + us.ScrambledSquad;
+                    Int32 key = (1 * 1000) + us.ScrambledSquad;
                     AddPlayerToSquadRoster(squads, us, key, us.ScrambledSquad, false);
                 }
                 foreach (PlayerModel ru in ruScrambled)
                 {
-                    int key = (2 * 1000) + ru.ScrambledSquad;
+                    Int32 key = (2 * 1000) + ru.ScrambledSquad;
                     AddPlayerToSquadRoster(squads, ru, key, ru.ScrambledSquad, false);
                 }
 
                 // Swap to maintain squad sizes and team sizes
-                int target = 0;
-                int opposing = 0;
+                Int32 target = 0;
+                Int32 opposing = 0;
                 List<PlayerModel> targetList = null;
                 List<PlayerModel> opposingList = null;
-                bool allOk = true;
+                Boolean allOk = true;
 
                 foreach (String splitId in splitTagsOrFriends)
                 {
@@ -4409,11 +4374,11 @@ namespace PRoConEvents
                         }
                         DebugScrambler("Target team is " + GetTeamName(target) + " with " + matesDistribution[splitId][target] + ", opposing team is " + GetTeamName(opposing) + " with " + matesDistribution[splitId][opposing]);
                         // List all squads that have this clan tag or friendex
-                        List<int> clan = GetSquadsWithClanTagOrFriendex(splitId, squads);
+                        List<Int32> clan = GetSquadsWithClanTagOrFriendex(splitId, squads);
                         // List players that need to move
                         List<PlayerModel> minority = new List<PlayerModel>();
                         List<PlayerModel> replacements = new List<PlayerModel>();
-                        foreach (int key in clan)
+                        foreach (Int32 key in clan)
                         {
                             if ((key / 1000) != target)
                             { // squad containing minority clan member from opposing team
@@ -4430,7 +4395,7 @@ namespace PRoConEvents
                             return;
                         }
                         // Need a list of replacements from the target team to swap, try non-clan members from target squads first
-                        foreach (int key in clan)
+                        foreach (Int32 key in clan)
                         {
                             if ((key / 1000) == target)
                             { // squad containing majority clan members from target team
@@ -4449,7 +4414,7 @@ namespace PRoConEvents
                         if (replacements.Count < minority.Count && targetList.Count > 0)
                         {
                             // start at the bottom of the sorted list and go up in metric
-                            for (int x = (targetList.Count - 1); x >= 0; --x)
+                            for (Int32 x = (targetList.Count - 1); x >= 0; --x)
                             {
                                 if (replacements.Count == minority.Count) break;
                                 PlayerModel extra = targetList[x];
@@ -4494,7 +4459,7 @@ namespace PRoConEvents
                             targetList = RemovePlayerFromList(targetList, rep.Name);
                         }
                         // Swap the minority movers with the replacements
-                        int i = 0;
+                        Int32 i = 0;
                         foreach (PlayerModel mate in minority)
                         {
                             try
@@ -4505,17 +4470,17 @@ namespace PRoConEvents
                                 String mateName = (KeepFriendsInSameTeam && !String.IsNullOrEmpty(mId)) ? ("[" + mId + "]" + mate.Name) : (mate.FullName);
                                 String extraName = (KeepFriendsInSameTeam && !String.IsNullOrEmpty(xId)) ? ("[" + xId + "]" + extra.Name) : (extra.FullName);
                                 DebugScrambler("SWAP: ^b" + mateName + "^n/" + GetTeamName(opposing) + "/" + GetSquadName(mate.ScrambledSquad) + " with ^b" + extraName + "^n/" + GetTeamName(target) + "/" + GetSquadName(extra.ScrambledSquad));
-                                int tmpSquad = extra.ScrambledSquad;
+                                Int32 tmpSquad = extra.ScrambledSquad;
                                 extra.ScrambledSquad = mate.ScrambledSquad;
                                 mate.ScrambledSquad = tmpSquad;
                                 extra.Team = opposing;
                                 mate.Team = target;
 
                                 targetList.Add(mate);
-                                int mateKey = (1000 * mate.Team) + mate.ScrambledSquad;
+                                Int32 mateKey = (1000 * mate.Team) + mate.ScrambledSquad;
                                 AddPlayerToSquadRoster(squads, mate, mateKey, mate.ScrambledSquad, false);
                                 opposingList.Add(extra);
-                                int extraKey = (1000 * extra.Team) + extra.ScrambledSquad;
+                                Int32 extraKey = (1000 * extra.Team) + extra.ScrambledSquad;
                                 AddPlayerToSquadRoster(squads, extra, extraKey, extra.ScrambledSquad, false);
                                 DebugScrambler("      Team " + GetTeamName(mate.Team) + " now has ^b" + mateName + "^n in " + GetSquadName(mate.ScrambledSquad) + " squad");
                                 DebugScrambler("      Team " + GetTeamName(extra.Team) + " now has ^b" + extraName + "^n in " + GetSquadName(extra.ScrambledSquad) + " squad");
@@ -4527,7 +4492,7 @@ namespace PRoConEvents
                             ++i;
                         }
                         // Validate
-                        int maxTeam = perMode.MaxPlayers / 2;
+                        Int32 maxTeam = perMode.MaxPlayers / 2;
                         allOk = true;
                         if (targetList.Count > maxTeam)
                         {
@@ -4597,11 +4562,10 @@ namespace PRoConEvents
             }
         }
 
-
-        private List<int> GetSquadsWithClanTagOrFriendex(String id, Dictionary<int, SquadRoster> squads)
+        private List<Int32> GetSquadsWithClanTagOrFriendex(String id, Dictionary<Int32, SquadRoster> squads)
         {
-            List<int> ret = new List<int>(); // list of keys into squad table
-            foreach (int key in squads.Keys)
+            List<Int32> ret = new List<Int32>(); // list of keys into squad table
+            foreach (Int32 key in squads.Keys)
             {
                 // anyone in this squad have the matching tagKey?
                 foreach (PlayerModel mate in squads[key].Roster)
@@ -4617,10 +4581,9 @@ namespace PRoConEvents
             return ret;
         }
 
-
-        private void RemovePlayerFromSquadRoster(Dictionary<int, SquadRoster> squads, String name)
+        private void RemovePlayerFromSquadRoster(Dictionary<Int32, SquadRoster> squads, String name)
         {
-            foreach (int key in squads.Keys)
+            foreach (Int32 key in squads.Keys)
             {
                 SquadRoster squad = squads[key];
                 List<PlayerModel> copy = new List<PlayerModel>();
@@ -4665,8 +4628,7 @@ namespace PRoConEvents
             return tagOrFriendex;
         }
 
-
-        private ScrambleStatus ScrambleTeams(List<PlayerModel> usOrig, List<PlayerModel> ruOrig, bool logOnly)
+        private ScrambleStatus ScrambleTeams(List<PlayerModel> usOrig, List<PlayerModel> ruOrig, Boolean logOnly)
         {
             /*
             We have to check every move to make sure that we are not overfilling a team
@@ -4678,12 +4640,12 @@ namespace PRoConEvents
             move we make.
             */
 
-            bool first = true;
+            Boolean first = true;
             PerModeSettings perMode = GetPerModeSettings();
-            int maxTeam = perMode.MaxPlayers / 2;
-            int usCount = 0;
-            int ruCount = 0;
-            Dictionary<int, int> allocated = new Dictionary<int, int>(); // key is combined team + squad
+            Int32 maxTeam = perMode.MaxPlayers / 2;
+            Int32 usCount = 0;
+            Int32 ruCount = 0;
+            Dictionary<Int32, Int32> allocated = new Dictionary<Int32, Int32>(); // key is combined team + squad
 
             // Get live counts
             List<String> allCopy = new List<String>();
@@ -4699,7 +4661,6 @@ namespace PRoConEvents
                 if (m.Team == 1) { ++usCount; }
                 else if (m.Team == 2) { ++ruCount; }
             }
-
 
             // Check for full server
             if (usCount >= maxTeam && ruCount >= maxTeam)
@@ -4723,7 +4684,7 @@ namespace PRoConEvents
                 if (DebugLevel >= 7) DebugScrambler("Team counts: Max = " + maxTeam + ", " + GetTeamName(1) + "(" + usCount + "), " + GetTeamName(2) + "(" + ruCount + ")");
 
                 // Pick next list to pull from, using the one that represents moving to the lowest live count
-                int nextList = 0;
+                Int32 nextList = 0;
                 if (usCount < maxTeam && usClone.Count > 0 && (usCount <= ruCount || ruClone.Count == 0))
                 {
                     nextList = 1;
@@ -4748,13 +4709,13 @@ namespace PRoConEvents
                 PlayerModel clone = pullFrom[0];
                 pullFrom.Remove(clone);
                 PlayerModel actual = GetPlayer(clone.Name);
-                int actualTeam = (actual != null) ? actual.Team : 0;
+                Int32 actualTeam = (actual != null) ? actual.Team : 0;
                 first = false;
                 try
                 {
                     ScrambleMove(clone, nextList, logOnly);
-                    int num = 0;
-                    int key = (nextList * 1000) + clone.ScrambledSquad;
+                    Int32 num = 0;
+                    Int32 key = (nextList * 1000) + clone.ScrambledSquad;
                     if (allocated.TryGetValue(key, out num))
                     {
                         num = num + 1;
@@ -4788,10 +4749,10 @@ namespace PRoConEvents
             return ScrambleStatus.Success;
         }
 
-        private void ScrambleMove(PlayerModel clone, int where, bool logOnly)
+        private void ScrambleMove(PlayerModel clone, Int32 where, Boolean logOnly)
         {
-            int toSquad = 0;
-            int toTeam = where;
+            Int32 toSquad = 0;
+            Int32 toTeam = where;
 
             // Move to available squad
             if (!IsKnownPlayer(clone.Name)) return; // might have left
@@ -4832,7 +4793,7 @@ namespace PRoConEvents
             clone.Squad = toSquad;
         }
 
-        private void RestoreSquads(List<PlayerModel> allCopy, Dictionary<int, int> allocated, bool logOnly)
+        private void RestoreSquads(List<PlayerModel> allCopy, Dictionary<Int32, Int32> allocated, Boolean logOnly)
         {
             // Try to restore to original squad
             foreach (PlayerModel clone in allCopy)
@@ -4841,11 +4802,11 @@ namespace PRoConEvents
                 {
                     // Check to make sure original team and squad are available
                     if (clone.Team < 1 || clone.Team > 2 || clone.OriginalSquad < 1 || clone.OriginalSquad >= SQUAD_NAMES.Length) continue;
-                    int toSquad = clone.OriginalSquad;
+                    Int32 toSquad = clone.OriginalSquad;
                     // If the original squad is full, pick one that isn't
                     if (allocated != null)
                     {
-                        int key = (1000 * clone.Team) + toSquad;
+                        Int32 key = (1000 * clone.Team) + toSquad;
                         while (allocated.ContainsKey(key) && allocated[key] >= fMaxSquadSize)
                         {
                             ++toSquad;
@@ -4881,7 +4842,7 @@ namespace PRoConEvents
 
         }
 
-        private SquadRoster AddPlayerToSquadRoster(Dictionary<int, SquadRoster> squads, PlayerModel player, int key, int squadId, bool ignoreSize)
+        private SquadRoster AddPlayerToSquadRoster(Dictionary<Int32, SquadRoster> squads, PlayerModel player, Int32 key, Int32 squadId, Boolean ignoreSize)
         {
             SquadRoster squad = null;
             if (squads.TryGetValue(key, out squad))
@@ -4900,7 +4861,7 @@ namespace PRoConEvents
             return squad;
         }
 
-        private void SumMetricByTeam(List<PlayerModel> usScrambled, List<PlayerModel> ruScrambled, out double usMetric, out double ruMetric)
+        private void SumMetricByTeam(List<PlayerModel> usScrambled, List<PlayerModel> ruScrambled, out Double usMetric, out Double ruMetric)
         {
             usMetric = 0;
             ruMetric = 0;
@@ -5010,9 +4971,9 @@ namespace PRoConEvents
             }
         }
 
-        private void RemapSquad(Dictionary<int, SquadRoster> squadTable, SquadRoster squad)
+        private void RemapSquad(Dictionary<Int32, SquadRoster> squadTable, SquadRoster squad)
         {
-            int emptyId = 1;
+            Int32 emptyId = 1;
             while (squadTable.ContainsKey(emptyId))
             {
                 emptyId = emptyId + 1;
@@ -5054,9 +5015,7 @@ namespace PRoConEvents
             if (DebugLevel >= 6) CommandToLog("scrambled");
         }
 
-
-
-        private void AssignFillerToTeam(PlayerModel filler, int toTeamId, List<PlayerModel> target, Dictionary<int, SquadRoster> targetSquadTable)
+        private void AssignFillerToTeam(PlayerModel filler, Int32 toTeamId, List<PlayerModel> target, Dictionary<Int32, SquadRoster> targetSquadTable)
         {
             String who = GetTeamName(toTeamId);
             if ((target.Count + 1) > (MaximumServerSize / 2))
@@ -5067,10 +5026,10 @@ namespace PRoConEvents
             if (!IsKnownPlayer(filler.Name)) return; // might have left
 
             // Find a squad with room to add this player, otherwise create a squad
-            int toSquadId = 0;
-            int emptyId = 1;
+            Int32 toSquadId = 0;
+            Int32 emptyId = 1;
             SquadRoster toSquad = null;
-            foreach (int key in targetSquadTable.Keys)
+            foreach (Int32 key in targetSquadTable.Keys)
             {
                 toSquad = targetSquadTable[key];
                 if (toSquad.Roster.Count == fMaxSquadSize) continue;
@@ -5113,12 +5072,12 @@ namespace PRoConEvents
             toSquad.Roster.Add(filler);
         }
 
-        private void UnsquadMove(Dictionary<int, SquadRoster> usSquads, Dictionary<int, SquadRoster> ruSquads, bool logOnly, List<String> unsquaded)
+        private void UnsquadMove(Dictionary<Int32, SquadRoster> usSquads, Dictionary<Int32, SquadRoster> ruSquads, Boolean logOnly, List<String> unsquaded)
         {
             DebugScrambler("UNSQUADING DUPLICATE SQUADS");
             // Only need to unsquad when squad id exists on both teams
 
-            List<int> onlyLogOnce = new List<int>();
+            List<Int32> onlyLogOnce = new List<Int32>();
             List<String> liveNames = new List<String>();
             lock (fAllPlayers)
             {
@@ -5146,7 +5105,7 @@ namespace PRoConEvents
             DebugScrambler("FINISHED UNSQUADING");
         }
 
-        private void SquadMove(PlayerModel clone, int toTeam, int toSquad, bool logOnly)
+        private void SquadMove(PlayerModel clone, Int32 toTeam, Int32 toSquad, Boolean logOnly)
         {
             // Do the move
             if (!EnableLoggingOnlyMode && !logOnly)
@@ -5162,19 +5121,6 @@ namespace PRoConEvents
             // force squad to new squad id
             clone.Squad = toSquad;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     } // end MULTIbalancer
 

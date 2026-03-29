@@ -18,20 +18,10 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Timers;
-using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -46,7 +36,7 @@ namespace PRoConEvents
 
     static class MULTIbalancerUtils
     {
-        public static bool IsEqual(MULTIbalancer lhs, MULTIbalancer.PresetItems preset)
+        public static Boolean IsEqual(MULTIbalancer lhs, MULTIbalancer.PresetItems preset)
         {
             MULTIbalancer rhs = new MULTIbalancer(preset);
             return (lhs.CheckForEquality(rhs));
@@ -91,38 +81,38 @@ namespace PRoConEvents
             catch (Exception) { }
         }
 
-        public static bool EqualArrays(double[] lhs, double[] rhs)
+        public static Boolean EqualArrays(Double[] lhs, Double[] rhs)
         {
             if (lhs == null && rhs == null) return true;
             if (lhs == null || rhs == null) return false;
             if (lhs.Length != rhs.Length) return false;
 
-            for (int i = 0; i < lhs.Length; ++i)
+            for (Int32 i = 0; i < lhs.Length; ++i)
             {
                 if (lhs[i] != rhs[i]) return false;
             }
             return true;
         }
 
-        public static bool EqualArrays(MULTIbalancer.Speed[] lhs, MULTIbalancer.Speed[] rhs)
+        public static Boolean EqualArrays(MULTIbalancer.Speed[] lhs, MULTIbalancer.Speed[] rhs)
         {
             if (lhs == null && rhs == null) return true;
             if (lhs == null || rhs == null) return false;
             if (lhs.Length != rhs.Length) return false;
 
-            for (int i = 0; i < lhs.Length; ++i)
+            for (Int32 i = 0; i < lhs.Length; ++i)
             {
                 if (lhs[i] != rhs[i]) return false;
             }
             return true;
         }
 
-        public static String ArrayToString(double[] a)
+        public static String ArrayToString(Double[] a)
         {
             String ret = String.Empty;
-            bool first = true;
+            Boolean first = true;
             if (a == null || a.Length == 0) return ret;
-            for (int i = 0; i < a.Length; ++i)
+            for (Int32 i = 0; i < a.Length; ++i)
             {
                 if (first)
                 {
@@ -140,9 +130,9 @@ namespace PRoConEvents
         public static String ArrayToString(MULTIbalancer.Speed[] a)
         {
             String ret = String.Empty;
-            bool first = true;
+            Boolean first = true;
             if (a == null || a.Length == 0) return ret;
-            for (int i = 0; i < a.Length; ++i)
+            for (Int32 i = 0; i < a.Length; ++i)
             {
                 if (first)
                 {
@@ -157,16 +147,16 @@ namespace PRoConEvents
             return ret;
         }
 
-        public static double[] ParseNumArray(String s)
+        public static Double[] ParseNumArray(String s)
         {
-            double[] nums = new double[3] { -1, -1, -1 }; // -1 indicates a syntax error
+            Double[] nums = new Double[3] { -1, -1, -1 }; // -1 indicates a syntax error
             if (String.IsNullOrEmpty(s)) return nums;
             if (!s.Contains(",")) return nums;
             String[] strs = s.Split(new Char[] { ',' });
             if (strs.Length != 3) return nums;
-            for (int i = 0; i < nums.Length; ++i)
+            for (Int32 i = 0; i < nums.Length; ++i)
             {
-                bool parsedOk = Double.TryParse(strs[i], out nums[i]);
+                Boolean parsedOk = Double.TryParse(strs[i], out nums[i]);
                 if (!parsedOk)
                 {
                     nums[i] = -1;
@@ -195,7 +185,7 @@ namespace PRoConEvents
                 plugin.ConsoleWarn("Wrong number of speeds, should be 3, separated by commas: " + s);
                 return speeds;
             }
-            for (int i = 0; i < speeds.Length; ++i)
+            for (Int32 i = 0; i < speeds.Length; ++i)
             {
                 try
                 {
@@ -704,7 +694,6 @@ For each phase, there are three unstacking settings for server population: Low, 
 
 <p><b>Enable Advanced Rush Unstacking</b>: True or False, default False. If set to True, an advanced method of determining unstacking is used for Rush. Do not use this unless you know what you are doing. See forum post for details.</p>
 
-
 <h3>9 - Debugging</h3>
 <p>These settings are used for debugging problems with the plugin.</p>
 
@@ -746,6 +735,5 @@ For each phase, there are three unstacking settings for server population: Low, 
         #endregion
 
     } // end MULTIbalancerUtils
-
 
 } // end namespace PRoConEvents

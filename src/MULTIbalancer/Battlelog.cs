@@ -20,18 +20,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Timers;
 using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -47,19 +40,6 @@ namespace PRoConEvents
     public partial class MULTIbalancer
     {
         /* ======================== BATTLELOG ============================= */
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         private void AddPlayerFetch(String name)
         {
@@ -111,13 +91,13 @@ namespace PRoConEvents
             try
             {
                 DateTime since = DateTime.MinValue;
-                int requests = 1;
+                Int32 requests = 1;
 
                 while (fIsEnabled)
                 {
                     String name = null;
-                    bool isTagRequest = true;
-                    int n = 0;
+                    Boolean isTagRequest = true;
+                    Int32 n = 0;
                     lock (fPriorityFetchQ)
                     {
                         while (fPriorityFetchQ.Count == 0)
@@ -170,7 +150,7 @@ namespace PRoConEvents
                     if (++requests > MaximumRequestRate)
                     {
                         // Wait remainder of 20 seconds before continuing
-                        int delay = 20 - Convert.ToInt32(DateTime.Now.Subtract(since).TotalSeconds);
+                        Int32 delay = 20 - Convert.ToInt32(DateTime.Now.Subtract(since).TotalSeconds);
                         if (delay > 0)
                         {
                             DebugFetch("Sleeping remaining " + delay + " seconds before sending next request");
@@ -251,7 +231,7 @@ namespace PRoConEvents
                 if (String.IsNullOrEmpty(player.PersonaId))
                 {
                     // Get the main page
-                    bool ok = false;
+                    Boolean ok = false;
                     status.State = FetchState.Failed;
                     if (!fIsEnabled) return;
                     ok = FetchWebPage(ref result, "http://battlelog.battlefield.com/bf3/user/" + name);
@@ -400,7 +380,7 @@ namespace PRoConEvents
                 if (String.IsNullOrEmpty(player.PersonaId))
                 {
                     // Get the main page
-                    bool ok = false;
+                    Boolean ok = false;
                     status.State = FetchState.Failed;
                     if (!fIsEnabled) return;
                     ok = FetchWebPage(ref result, "http://battlelog.battlefield.com/bfh/user/" + name + "?nocacherandom=" + Environment.TickCount);
@@ -422,7 +402,7 @@ namespace PRoConEvents
                 if (requestType == "clanTag")
                 {
                     // Get the stats page
-                    bool ok = false;
+                    Boolean ok = false;
                     status.State = FetchState.Failed;
                     if (!fIsEnabled) return;
                     String bfhfurl = "http://battlelog.battlefield.com/bfh/agent/" + name + "/stats/" + player.PersonaId + "/pc/" + "?nocacherandom=" + Environment.TickCount;
@@ -518,7 +498,7 @@ namespace PRoConEvents
                 if (String.IsNullOrEmpty(player.PersonaId))
                 {
                     // Get the main page
-                    bool ok = false;
+                    Boolean ok = false;
                     status.State = FetchState.Failed;
                     if (!fIsEnabled) return;
                     ok = FetchWebPage(ref result, "http://battlelog.battlefield.com/bf4/user/" + name);
@@ -549,7 +529,7 @@ namespace PRoConEvents
                 if (requestType == "clanTag")
                 {
                     // Get the stats page
-                    bool ok = false;
+                    Boolean ok = false;
                     status.State = FetchState.Failed;
                     if (!fIsEnabled) return;
                     String bf4furl = "http://battlelog.battlefield.com/bf4/warsawoverviewpopulate/" + player.PersonaId + "/1/";
@@ -652,7 +632,7 @@ namespace PRoConEvents
             }
         }
 
-        public bool IsCacheEnabled(bool verbose)
+        public Boolean IsCacheEnabled(Boolean verbose)
         {
             if (fGameVersion != GameVersion.BF3)
             {
@@ -719,7 +699,7 @@ namespace PRoConEvents
                 if (DebugLevel >= 8)
                 {
                     DebugFetch("CacheResponse called with " + response.Length + " parameters");
-                    for (int i = 0; i < response.Length; ++i)
+                    for (Int32 i = 0; i < response.Length; ++i)
                     {
                         DebugFetch("#" + i + ") Length: " + response[i].Length);
                         val = response[i];
@@ -746,9 +726,9 @@ namespace PRoConEvents
                 }
 
                 String result = (String)header["type"];
-                double fetchTime = -1;
+                Double fetchTime = -1;
                 Double.TryParse((String)header["fetchTime"], out fetchTime);
-                double age = -1;
+                Double age = -1;
                 Double.TryParse((String)header["age"], out age);
 
                 PlayerModel player = GetPlayer(name);
@@ -859,8 +839,7 @@ namespace PRoConEvents
             }
         }
 
-
-        private bool CheckSuccess(Hashtable json, out String err)
+        private Boolean CheckSuccess(Hashtable json, out String err)
         {
 
             if (json == null)
@@ -907,9 +886,9 @@ namespace PRoConEvents
             return false;
         }
 
-        private bool FetchWebPage(ref String result, String url)
+        private Boolean FetchWebPage(ref String result, String url)
         {
-            bool ret = false;
+            Boolean ret = false;
             try
             {
 
@@ -965,19 +944,6 @@ namespace PRoConEvents
             }
             return ret;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     } // end MULTIbalancer
 

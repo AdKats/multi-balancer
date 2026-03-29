@@ -18,20 +18,12 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Timers;
-using System.Web;
-using System.Xml;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -48,17 +40,8 @@ namespace PRoConEvents
     {
         /* ======================== SETTINGS ============================= */
 
-
-
-
-
-
-
-
-
         public List<CPluginVariable> GetDisplayPluginVariables()
         {
-
 
             List<CPluginVariable> lstReturn = new List<CPluginVariable>();
 
@@ -316,7 +299,6 @@ namespace PRoConEvents
 
                 lstReturn.Add(new CPluginVariable("5 - Messages|Yell: Autobalancing", YellAutobalancing.GetType(), YellAutobalancing));
 
-
                 /* ===== SECTION 6 - Unswitcher ===== */
 
                 var_name = "6 - Unswitcher|Forbid Switching After Autobalance";
@@ -362,13 +344,13 @@ namespace PRoConEvents
                         oneSet = fPerMode[sm];
                     }
 
-                    bool isCTF = (sm == "CTF");
-                    bool isGM = (sm == "Gun Master");
-                    bool isRush = (sm.Contains("Rush"));
-                    bool isSQDM = (sm == "Squad Deathmatch");
-                    bool isConquest = (sm.Contains("Conq"));
-                    bool isCarrierAssault = (sm.Contains("Carrier"));
-                    bool isObliteration = (sm.Contains("Obliteration"));
+                    Boolean isCTF = (sm == "CTF");
+                    Boolean isGM = (sm == "Gun Master");
+                    Boolean isRush = (sm.Contains("Rush"));
+                    Boolean isSQDM = (sm == "Squad Deathmatch");
+                    Boolean isConquest = (sm.Contains("Conq"));
+                    Boolean isCarrierAssault = (sm.Contains("Carrier"));
+                    Boolean isObliteration = (sm.Contains("Obliteration"));
 
                     lstReturn.Add(new CPluginVariable("8 - Settings for " + sm + "|" + sm + ": " + "Max Players", oneSet.MaxPlayers.GetType(), oneSet.MaxPlayers));
 
@@ -497,7 +479,6 @@ namespace PRoConEvents
                     lstReturn.Add(new CPluginVariable("9 - Debugging|Enable Risky Features", EnableRiskyFeatures.GetType(), EnableRiskyFeatures));
                 }
 
-
             }
             catch (Exception e)
             {
@@ -534,8 +515,8 @@ namespace PRoConEvents
 
         public void SetPluginVariable(String strVariable, String strValue)
         {
-            bool isPresetVar = false;
-            bool isReminderVar = false;
+            Boolean isPresetVar = false;
+            Boolean isReminderVar = false;
 
             if (fIsEnabled) DebugWrite(strVariable + " <- " + strValue, 6);
 
@@ -552,7 +533,7 @@ namespace PRoConEvents
                     DebugWrite("^1Settings Version = " + strValue, 3);
                 }
                 String tmp = strVariable;
-                int pipeIndex = strVariable.IndexOf('|');
+                Int32 pipeIndex = strVariable.IndexOf('|');
                 if (pipeIndex >= 0)
                 {
                     pipeIndex++;
@@ -572,7 +553,6 @@ namespace PRoConEvents
                 FieldInfo field = this.GetType().GetField(propertyName, flags);
 
                 Type fieldType = null;
-
 
                 if (!strVariable.Contains("Settings for") && field != null)
                 {
@@ -619,11 +599,11 @@ namespace PRoConEvents
                     }
                     else if (tmp.Contains("Ticket Percentage To Unstack"))
                     {
-                        fieldType = typeof(double[]);
+                        fieldType = typeof(Double[]);
                         try
                         {
                             // Parse the list into an array of numbers
-                            double[] nums = MULTIbalancerUtils.ParseNumArray(strValue); // also validates
+                            Double[] nums = MULTIbalancerUtils.ParseNumArray(strValue); // also validates
                             field.SetValue(this, nums);
                         }
                         catch (Exception e)
@@ -871,8 +851,6 @@ namespace PRoConEvents
             }
         }
 
-
-
         /*
         procon.protected.plugins.setVariable "MULTIbalancer" "1 - Settings|Whitelist" "Able B|Baker B U|Charlie B U S|None|Delta B U S R"
         procon.protected.plugins.setVariable "MULTIbalancer" "1 - Settings|Friends List" "AAA BBB CCC|XXX YYY ZZZ|Able Baker|Charlie Delta"
@@ -895,7 +873,6 @@ namespace PRoConEvents
             }
         }
 
-
         private void ForceSetPluginVariable(String strVariable, String strValue)
         {
             try
@@ -909,9 +886,7 @@ namespace PRoConEvents
             }
         }
 
-
-
-        private bool ValidateSettings(String strVariable, String strValue)
+        private Boolean ValidateSettings(String strVariable, String strValue)
         {
             try
             {
@@ -932,15 +907,15 @@ namespace PRoConEvents
 
                 /* ===== SECTION 3 - Round Phase & Population Settings ===== */
 
-                for (int i = 0; i < EarlyPhaseTicketPercentageToUnstack.Length; ++i)
+                for (Int32 i = 0; i < EarlyPhaseTicketPercentageToUnstack.Length; ++i)
                 {
                     if (strVariable.Contains("Early Phase: Ticket Percentage To Unstack")) ValidateDoubleRange(ref EarlyPhaseTicketPercentageToUnstack[i], "Early Phase Ticket Percentage To Unstack", 100.0, 5000.0, 120.0, true);
                 }
-                for (int i = 0; i < MidPhaseTicketPercentageToUnstack.Length; ++i)
+                for (Int32 i = 0; i < MidPhaseTicketPercentageToUnstack.Length; ++i)
                 {
                     if (strVariable.Contains("Mid Phase: Ticket Percentage To Unstack")) ValidateDoubleRange(ref MidPhaseTicketPercentageToUnstack[i], "Mid Phase Ticket Percentage To Unstack", 100.0, 5000.0, 120.0, true);
                 }
-                for (int i = 0; i < LatePhaseTicketPercentageToUnstack.Length; ++i)
+                for (Int32 i = 0; i < LatePhaseTicketPercentageToUnstack.Length; ++i)
                 {
                     if (strVariable.Contains("Late Phase: Ticket Percentage To Unstack")) ValidateDoubleRange(ref LatePhaseTicketPercentageToUnstack[i], "Late Phase Ticket Percentage To Unstack", 100.0, 5000.0, 120.0, true);
                 }
@@ -1013,7 +988,7 @@ namespace PRoConEvents
                     else if (strVariable.Contains("Definition Of Late Phase")) ValidateInt(ref perMode.DefinitionOfLatePhaseFromEnd, mode + ":" + "Definition Of Late Phase From End", def.DefinitionOfLatePhaseFromEnd);
                     if (mode == "CTF" || mode.Contains("Carrier"))
                     {
-                        int maxMinutes = (mode == "CTF") ? 60 : 90; // TBD, might need to factor in gameModeCounter
+                        Int32 maxMinutes = (mode == "CTF") ? 60 : 90; // TBD, might need to factor in gameModeCounter
                         if (strVariable.Contains("Definition Of Late Phase") && perMode.DefinitionOfLatePhaseFromEnd > maxMinutes)
                         {
                             ConsoleError("^b" + "Definition Of Late Phase" + "^n must be less than or equal to " + maxMinutes + " minutes, corrected to " + maxMinutes);
@@ -1032,7 +1007,6 @@ namespace PRoConEvents
                 }
 
                 /* ===== SECTION 9 - Debug Settings ===== */
-
 
             }
             catch (Exception e)
@@ -1172,7 +1146,7 @@ namespace PRoConEvents
             EnableRiskyFeatures = rhs.EnableRiskyFeatures;
         }
 
-        private void CommandToLog(string cmd)
+        private void CommandToLog(String cmd)
         {
             try
             {
@@ -1191,8 +1165,8 @@ namespace PRoConEvents
                             if (p.Role != ROLE_PLAYER)
                                 continue;
 
-                            double joinedMinutesAgo = GetPlayerJoinedTimeSpan(p).TotalMinutes;
-                            double enabledForMinutes = DateTime.Now.Subtract(fEnabledTimestamp).TotalMinutes;
+                            Double joinedMinutesAgo = GetPlayerJoinedTimeSpan(p).TotalMinutes;
+                            Double enabledForMinutes = DateTime.Now.Subtract(fEnabledTimestamp).TotalMinutes;
                             if ((enabledForMinutes > MinutesAfterJoining)
                             && (joinedMinutesAgo > MinutesAfterJoining)
                             && (!p.TagVerified || p.TagFetchStatus.State == FetchState.Failed || p.TagFetchStatus.State == FetchState.Aborted))
@@ -1215,8 +1189,8 @@ namespace PRoConEvents
                         }
                         tmp = tmp + " (" + failures.Count + " total)";
                         ConsoleDump("^bUnable to fetch clan tags for: " + tmp);
-                        int aborted = 0;
-                        int failed = 0;
+                        Int32 aborted = 0;
+                        Int32 failed = 0;
                         foreach (String pn in failures)
                         {
                             PlayerModel p = GetPlayer(pn);
@@ -1241,8 +1215,8 @@ namespace PRoConEvents
                             if (p.Role != ROLE_PLAYER)
                                 continue;
 
-                            double joinedMinutesAgo = GetPlayerJoinedTimeSpan(p).TotalMinutes;
-                            double enabledForMinutes = DateTime.Now.Subtract(fEnabledTimestamp).TotalMinutes;
+                            Double joinedMinutesAgo = GetPlayerJoinedTimeSpan(p).TotalMinutes;
+                            Double enabledForMinutes = DateTime.Now.Subtract(fEnabledTimestamp).TotalMinutes;
                             if ((enabledForMinutes > MinutesAfterJoining)
                             && (joinedMinutesAgo > MinutesAfterJoining)
                             && !p.StatsVerified
@@ -1266,8 +1240,8 @@ namespace PRoConEvents
                         }
                         tmp = tmp + " (" + failures.Count + " total)";
                         ConsoleDump("^bUnable to fetch stats for: " + tmp);
-                        int aborted = 0;
-                        int failed = 0;
+                        Int32 aborted = 0;
+                        Int32 failed = 0;
                         foreach (String pn in failures)
                         {
                             PlayerModel p = GetPlayer(pn);
@@ -1281,8 +1255,6 @@ namespace PRoConEvents
                     return;
                 }
 
-
-
                 if (Regex.Match(cmd, @"^delay", RegexOptions.IgnoreCase).Success)
                 {
                     if (fTotalRoundEndingRounds < 1)
@@ -1290,10 +1262,10 @@ namespace PRoConEvents
                         ConsoleDump("Not enough rounds timed to make a recommendation yet");
                         return;
                     }
-                    double total = (fTotalRoundEndingSeconds / fTotalRoundEndingRounds); // total amount of time between rounds
-                    double backoff = (TotalPlayerCount() / 15) * 5; // scrambler needs about 5 seconds per 15 players
+                    Double total = (fTotalRoundEndingSeconds / fTotalRoundEndingRounds); // total amount of time between rounds
+                    Double backoff = (TotalPlayerCount() / 15) * 5; // scrambler needs about 5 seconds per 15 players
                     backoff = Math.Max(5, backoff);
-                    double advice = total - backoff;
+                    Double advice = total - backoff;
                     advice = Math.Max(((fGameVersion == GameVersion.BFH) ? 10 : 50), advice); // never less than 50 seconds (10 for BFH)
                     ConsoleDump("Recommended scrambler delay, based on " + fTotalRoundEndingRounds + " rounds, is " + advice.ToString("F0") + " seconds");
                     return;
@@ -1303,7 +1275,7 @@ namespace PRoConEvents
                 if (m.Success)
                 {
                     String what = m.Groups[1].Value;
-                    int section = 8;
+                    Int32 section = 8;
                     if (!Int32.TryParse(what, out section)) section = 8;
 
                     List<CPluginVariable> vars = GetDisplayPluginVariables();
@@ -1382,7 +1354,7 @@ namespace PRoConEvents
                     }
                     ConsoleDump(" ");
                     ConsoleDump("Friends List(" + fFriends.Keys.Count + "):");
-                    foreach (int k in fFriends.Keys)
+                    foreach (Int32 k in fFriends.Keys)
                     {
                         ConsoleDump(k.ToString() + ": " + String.Join(", ", fFriends[k].ToArray()));
                     }
@@ -1393,7 +1365,7 @@ namespace PRoConEvents
                         ConsoleDump(item);
                     }
                     ConsoleDump(" ");
-                    for (int i = 1; i <= 4; ++i)
+                    for (Int32 i = 1; i <= 4; ++i)
                     { // 1 to 4 teams
                         if (fDispersalGroups[i].Count > 0)
                         {
@@ -1403,7 +1375,7 @@ namespace PRoConEvents
                     }
                     ConsoleDump(" ");
                     msg = "Group assignments: ";
-                    for (int i = 1; i <= 4; ++i)
+                    for (Int32 i = 1; i <= 4; ++i)
                     { // 1 to 4 teams
                         msg = msg + fGroupAssignments[i];
                         if (i < 4) msg = msg + "/";
@@ -1450,7 +1422,7 @@ namespace PRoConEvents
                                     }
                                     else
                                     {
-                                        int last = p.MovedByMBHistory.Count - 1;
+                                        Int32 last = p.MovedByMBHistory.Count - 1;
                                         interval = p.MovedByMBHistory[last].Subtract(p.MovedByMBHistory[last - 1]).TotalMinutes.ToString("F0") + " minutes apart";
                                     }
                                 }
@@ -1574,12 +1546,12 @@ namespace PRoConEvents
 
                 if (Regex.Match(cmd, @"^size[s]?", RegexOptions.IgnoreCase).Success)
                 {
-                    int kp = fKnownPlayers.Count;
-                    int ap = fAllPlayers.Count;
-                    int old = 0;
-                    int validTags = 0;
-                    int commanders = 0;
-                    int spectators = 0;
+                    Int32 kp = fKnownPlayers.Count;
+                    Int32 ap = fAllPlayers.Count;
+                    Int32 old = 0;
+                    Int32 validTags = 0;
+                    Int32 commanders = 0;
+                    Int32 spectators = 0;
                     lock (fKnownPlayers)
                     {
                         // count player records more than 12 hours old
@@ -1594,7 +1566,7 @@ namespace PRoConEvents
                                 }
                             }
                             if (p.TagVerified) ++validTags;
-                            bool playing = false;
+                            Boolean playing = false;
                             lock (fAllPlayers)
                             {
                                 playing = fAllPlayers.Contains(name);
@@ -1621,7 +1593,7 @@ namespace PRoConEvents
                     String teamID = m.Groups[1].Value;
                     String propID = m.Groups[2].Value;
 
-                    int team = 0;
+                    Int32 team = 0;
                     if (!Int32.TryParse(teamID, out team) || team < 1 || team > 4)
                     {
                         ConsoleDump("Invalid team: " + teamID);
@@ -1666,7 +1638,7 @@ namespace PRoConEvents
                             fromList.Sort(DescendingRoundScore);
                             break;
                     }
-                    int n = 1;
+                    Int32 n = 1;
                     foreach (PlayerModel p in fromList)
                     {
                         switch (propID.ToLower())
@@ -1815,7 +1787,7 @@ namespace PRoConEvents
                             continue;
                         }
                         String line = String.Empty;
-                        for (int i = 0; i < tokens.Count; ++i)
+                        for (Int32 i = 0; i < tokens.Count; ++i)
                         {
                             line = line + tokens[i] + " ";
                         }
@@ -1915,7 +1887,7 @@ namespace PRoConEvents
                 Match testF3 = Regex.Match(cmd, @"^test f3 ([^\s]+)", RegexOptions.IgnoreCase);
                 if (testF3.Success)
                 {
-                    int oldLevel = DebugLevel;
+                    Int32 oldLevel = DebugLevel;
                     DebugLevel = 7;
                     try
                     {
@@ -1947,7 +1919,7 @@ namespace PRoConEvents
                 Match testF4 = Regex.Match(cmd, @"^test f4 ([^\s]+)", RegexOptions.IgnoreCase);
                 if (testF4.Success)
                 {
-                    int oldLevel = DebugLevel;
+                    Int32 oldLevel = DebugLevel;
                     DebugLevel = 7;
                     try
                     {
@@ -1979,7 +1951,7 @@ namespace PRoConEvents
                 Match testFH = Regex.Match(cmd, @"^test fh ([^\s]+)", RegexOptions.IgnoreCase);
                 if (testFH.Success)
                 {
-                    int oldLevel = DebugLevel;
+                    Int32 oldLevel = DebugLevel;
                     DebugLevel = 7;
                     try
                     {
@@ -2154,8 +2126,6 @@ namespace PRoConEvents
                     return;
                 }
 
-
-
             }
             catch (Exception e)
             {
@@ -2163,7 +2133,7 @@ namespace PRoConEvents
             }
         }
 
-        private void CompareSquads(int beforeTeam, int afterTeam, List<PlayerModel> before, List<PlayerModel> after, int otherTeam, List<PlayerModel> otherAfter, bool finalCheck)
+        private void CompareSquads(Int32 beforeTeam, Int32 afterTeam, List<PlayerModel> before, List<PlayerModel> after, Int32 otherTeam, List<PlayerModel> otherAfter, Boolean finalCheck)
         {
             Dictionary<Int32, List<String>> beforeTable = new Dictionary<Int32, List<String>>();
             Dictionary<Int32, List<String>> afterTable = new Dictionary<Int32, List<String>>();
@@ -2215,7 +2185,7 @@ namespace PRoConEvents
             }
 
             // Compare
-            foreach (int expectedSquad in beforeTable.Keys)
+            foreach (Int32 expectedSquad in beforeTable.Keys)
             {
                 try
                 {
@@ -2228,7 +2198,7 @@ namespace PRoConEvents
             }
         }
 
-        private void AnalyzeSquadLists(int beforeTeam, int beforeSquad, List<String> beforeSquadList, int afterTeam, Dictionary<Int32, List<String>> afterTable, int otherTeam, Dictionary<Int32, List<String>> otherTable, bool finalCheck)
+        private void AnalyzeSquadLists(Int32 beforeTeam, Int32 beforeSquad, List<String> beforeSquadList, Int32 afterTeam, Dictionary<Int32, List<String>> afterTable, Int32 otherTeam, Dictionary<Int32, List<String>> otherTable, Boolean finalCheck)
         {
             // Analyze the disposition of one squad (beforeSquad)
             if (beforeTeam < 1 || beforeTeam > 2 || beforeSquad < 0 || beforeSquad >= SQUAD_NAMES.Length) return;
@@ -2247,14 +2217,14 @@ namespace PRoConEvents
                     continue;
                 }
                 // where did player x end up?
-                foreach (int afterSquad in afterTable.Keys)
+                foreach (Int32 afterSquad in afterTable.Keys)
                 {
                     if (afterTable[afterSquad].Contains(x))
                     {
                         endedUpIn[x] = (1000 * afterTeam) + afterSquad; // remember combined team+squad this name ended up
                     }
                 }
-                foreach (int otherSquad in otherTable.Keys)
+                foreach (Int32 otherSquad in otherTable.Keys)
                 {
                     if (otherTable[otherSquad].Contains(x))
                     {
@@ -2265,14 +2235,14 @@ namespace PRoConEvents
 
             // build a table of where every player actually ended up (invert endedUpIn table)
             String split = " ";
-            int different = -1;
+            Int32 different = -1;
             Dictionary<Int32, List<String>> movedSquadTable = new Dictionary<Int32, List<String>>(); // key is combined team + squad
 
             foreach (String name in endedUpIn.Keys)
             {
-                int eui = endedUpIn[name];
-                int endedUpInTeam = eui / 1000;
-                int endedUpInSquad = eui - (1000 * endedUpInTeam);
+                Int32 eui = endedUpIn[name];
+                Int32 endedUpInTeam = eui / 1000;
+                Int32 endedUpInSquad = eui - (1000 * endedUpInTeam);
                 if (endedUpInSquad != beforeSquad) different = eui; // only remember the latest
                 List<String> endedUpInSquadList = null;
                 if (movedSquadTable.TryGetValue(eui, out endedUpInSquadList) && endedUpInSquadList != null)
@@ -2291,9 +2261,9 @@ namespace PRoConEvents
             if (movedSquadTable.Keys.Count > 1)
             {
                 // Decide which players are the outliers, in the smallest lists
-                int max = -1;
-                int big = -1;
-                foreach (int si in movedSquadTable.Keys)
+                Int32 max = -1;
+                Int32 big = -1;
+                foreach (Int32 si in movedSquadTable.Keys)
                 {
                     if (movedSquadTable[si].Count > max)
                     {
@@ -2303,11 +2273,11 @@ namespace PRoConEvents
                 }
                 // every list except max
                 String notice = "Player(s) removed from " + ts + " to balance teams:";
-                foreach (int si in movedSquadTable.Keys)
+                foreach (Int32 si in movedSquadTable.Keys)
                 {
                     if (si == big) continue;
-                    int siTeam = si / 1000;
-                    int siSquad = si - (1000 * siTeam);
+                    Int32 siTeam = si / 1000;
+                    Int32 siSquad = si - (1000 * siTeam);
                     if (!finalCheck)
                     {
                         foreach (String outlier in movedSquadTable[si])
@@ -2347,23 +2317,14 @@ namespace PRoConEvents
             }
             else if (different != -1)
             {
-                int differentTeam = different / 1000;
+                Int32 differentTeam = different / 1000;
                 if (differentTeam < 1 || differentTeam > 2) differentTeam = 0;
-                int differentSquad = different - (1000 * differentTeam);
+                Int32 differentSquad = different - (1000 * differentTeam);
                 if (differentSquad < 0 || differentSquad >= SQUAD_NAMES.Length) differentSquad = 0;
                 ConsoleDump(ts + " is intact and is now a different squad: " + GetTeamName(differentTeam) + "/" + GetSquadName(differentSquad));
             }
             // Dump nothing if everything is as expected
         }
-
-
-
-
-
-
-
-
-
 
     } // end MULTIbalancer
 
