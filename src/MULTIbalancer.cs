@@ -935,6 +935,26 @@ namespace PRoConEvents
 
 
 
+        public String GetPluginName()
+        {
+            return "MULTIbalancer";
+        }
+
+        public String GetPluginVersion()
+        {
+            return "2.0.0.0";
+        }
+
+        public String GetPluginAuthor()
+        {
+            return "PapaCharlie9 (maintained by Prophet731)";
+        }
+
+        public String GetPluginWebsite()
+        {
+            return "https://github.com/PapaCharlie9/multi-balancer";
+        }
+
         public String GetPluginDescription()
         {
             return MULTIbalancerUtils.HTML_DOC;
