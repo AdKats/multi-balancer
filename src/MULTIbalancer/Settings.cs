@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 using PRoCon.Core;
@@ -2083,7 +2084,7 @@ namespace PRoConEvents
                     ConsoleDump("Converted " + MULTIbalancerUtils.HTML_DOC.Length + " chars of HTML to " + vbCode.Length + " chars of VBCode!");
                     try
                     {
-                        String path = Path.Combine(Directory.GetParent(Application.ExecutablePath).FullName, "vbcode.txt");
+                        String path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "vbcode.txt");
 
                         using (FileStream fs = File.Open(path, FileMode.Create))
                         {

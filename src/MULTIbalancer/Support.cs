@@ -2853,7 +2853,7 @@ namespace PRoConEvents
 
             try
             {
-                if (!Path.IsPathRooted(path)) path = Path.Combine(Directory.GetParent(Application.ExecutablePath).FullName, path);
+                if (!Path.IsPathRooted(path)) path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
 
                 // Add newline
                 entry = entry + "\n";
@@ -3141,7 +3141,7 @@ namespace PRoConEvents
 
                     try
                     {
-                        if (!Path.IsPathRooted(path)) path = Path.Combine(Directory.GetParent(Application.ExecutablePath).FullName, path);
+                        if (!Path.IsPathRooted(path)) path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
                         Byte[] buffer = new Byte[128]; // 64k buffer
                         Int32 got = 0;
                         UTF8Encoding utf = new UTF8Encoding(false, true);
@@ -4722,7 +4722,7 @@ namespace PRoConEvents
                 row[16] = String.Empty;
                 row[17] = String.Empty;
 
-                if (!Path.IsPathRooted(path)) path = Path.Combine(Directory.GetParent(Application.ExecutablePath).FullName, path);
+                if (!Path.IsPathRooted(path)) path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
 
                 // Add newline
                 String entry = String.Join(",", row) + "\n";
@@ -5573,7 +5573,5 @@ namespace PRoConEvents
         }
 
     } // end MULTIbalancer
-
-} // end MULTIbalancer
 
 } // end namespace PRoConEvents
