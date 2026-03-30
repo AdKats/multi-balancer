@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Flurl.Http" Version="4.*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="**/*.cs" />
     <Compile Include="src/**/*.cs" />
   </ItemGroup>

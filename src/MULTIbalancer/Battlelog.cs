@@ -21,10 +21,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Web;
+using System.Threading.Tasks;
+
+using Flurl.Http;
 
 using PRoCon.Core;
 using PRoCon.Core.Battlemap;
@@ -341,39 +342,36 @@ namespace PRoConEvents
                 DebugFetch("Fetching from Battlelog BF4 " + requestType + "(^b" + name + "^n)");
 
                 /*
-                using (var client = new WebClient())
+                try
                 {
-                    try
+                    //Get persona
+                    DoBattlelogWait();
+                    String userResponse = ("http://battlelog.battlefield.com/bfh/user/" + aPlayer.player_name + "?nocacherandom=" + Environment.TickCount).GetStringAsync().Result;
+                    Match pid = Regex.Match(userResponse, @"agent\/" + aPlayer.player_name + @"\/stats\/(\d+)");
+                    if (!pid.Success)
                     {
-                        //Get persona
-                        DoBattlelogWait();
-                        String userResponse = client.DownloadString("http://battlelog.battlefield.com/bfh/user/" + aPlayer.player_name + "?nocacherandom=" + Environment.TickCount);
-                        Match pid = Regex.Match(userResponse, @"agent\/" + aPlayer.player_name + @"\/stats\/(\d+)");
-                        if (!pid.Success)
-                        {
-                            Log.Warn("Could not find BFHL persona ID for " + aPlayer.player_name);
-                            return;
-                        }
-                        aPlayer.player_personaID = pid.Groups[1].Value.Trim();
-                        Log.Debug("Persona ID fetched for " + aPlayer.player_name + ":" + aPlayer.player_personaID, 4);
-                        //Get tag
-                        DoBattlelogWait();
-                        String soldierResponse = client.DownloadString("http://battlelog.battlefield.com/bfh/agent/" + aPlayer.player_name + "/stats/" + aPlayer.player_personaID + "/pc/" + "?nocacherandom=" + Environment.TickCount);
-                        Match tag = Regex.Match(soldierResponse, @"\[\s*([a-zA-Z0-9]+)\s*\]\s*</span>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                        if (!tag.Success || String.IsNullOrEmpty(tag.Groups[1].Value.Trim()))
-                        {
-                            Log.Debug("Could not find BFHL clan tag for " + aPlayer.player_name, 4);
-                        }
-                        else
-                        {
-                            aPlayer.player_clanTag = tag.Groups[1].Value.Trim();
-                            Log.Debug("Clan tag [" + aPlayer.player_clanTag + "] found for " + aPlayer.player_name, 4);
-                        }
+                        Log.Warn("Could not find BFHL persona ID for " + aPlayer.player_name);
+                        return;
                     }
-                    catch (Exception e)
+                    aPlayer.player_personaID = pid.Groups[1].Value.Trim();
+                    Log.Debug("Persona ID fetched for " + aPlayer.player_name + ":" + aPlayer.player_personaID, 4);
+                    //Get tag
+                    DoBattlelogWait();
+                    String soldierResponse = ("http://battlelog.battlefield.com/bfh/agent/" + aPlayer.player_name + "/stats/" + aPlayer.player_personaID + "/pc/" + "?nocacherandom=" + Environment.TickCount).GetStringAsync().Result;
+                    Match tag = Regex.Match(soldierResponse, @"\[\s*([a-zA-Z0-9]+)\s*\]\s*</span>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    if (!tag.Success || String.IsNullOrEmpty(tag.Groups[1].Value.Trim()))
                     {
-                        Log.Exception("Error fetching BFHL player info", e);
+                        Log.Debug("Could not find BFHL clan tag for " + aPlayer.player_name, 4);
                     }
+                    else
+                    {
+                        aPlayer.player_clanTag = tag.Groups[1].Value.Trim();
+                        Log.Debug("Clan tag [" + aPlayer.player_clanTag + "] found for " + aPlayer.player_name, 4);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Exception("Error fetching BFHL player info", e);
                 }
                 */
 
@@ -891,23 +889,20 @@ namespace PRoConEvents
             Boolean ret = false;
             try
             {
-
-                WebClient client = new WebClient();
                 String ua = "Mozilla/5.0 (compatible; PRoCon 1; " + GetPluginName() + ")";
                 // XXX String ua = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; .NET CLR 3.5.30729)";
                 if (DebugLevel >= 8) DebugFetch("Using user-agent: " + ua);
-                client.Headers.Add("user-agent", ua);
 
                 DateTime since = DateTime.Now;
 
-                result = client.DownloadString(url);
+                result = url
+                    .WithHeader("User-Agent", ua)
+                    .GetStringAsync()
+                    .Result;
 
                 /* TESTS
                 String testUrl = "http://status.savanttools.com/?code=";
-                html_data = client.DownloadString(testUrl + "429%20Too%20Many%20Requests");
-                //html_data = client.DownloadString(testUrl + "509%20Bandwidth%20Limit%20Exceeded");
-                //html_data = client.DownloadString(testUrl + "408%20Request%20Timeout");
-                //html_data = client.DownloadString(testUrl + "404%20Not%20Found");
+                html_data = testUrl.WithHeader("User-Agent", ua).GetStringAsync().Result;
                 */
 
                 DebugFetch("^2^bTIME^n took " + DateTime.Now.Subtract(since).TotalSeconds.ToString("F2") + " secs, url: " + url);
@@ -921,10 +916,10 @@ namespace PRoConEvents
 
                 ret = true;
             }
-            catch (WebException e)
+            catch (FlurlHttpException e)
             {
                 if (DebugLevel >= 3 && DebugLevel < 7) DebugFetch("FAILED for url: " + url, 3);
-                if (e.Status.Equals(WebExceptionStatus.Timeout))
+                if (e.InnerException is TaskCanceledException)
                 {
                     if (DebugLevel >= 3) DebugFetch("WEB EXCEPTION: HTTP request timed-out", 3);
                 }
